@@ -6,4 +6,6 @@ struct ParsedTask: Equatable {
     var dueDate: Date? = nil
     var tags: [String] = []
     var project: String? = nil
+    var estimate: Int = 0
+    var isDone: Bool = false
 }

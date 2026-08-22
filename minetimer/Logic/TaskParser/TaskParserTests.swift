@@ -19,6 +19,13 @@ struct TaskParserTests {
         #expect(p.dueDate == cal.date(from: DateComponents(year: 2026, month: 8, day: 23)))
     }
 
+    @Test func estimateAndChecklistPrefix() {
+        let p = TaskParser.parse("- [x] ship it ~3", now: now, calendar: cal)
+        #expect(p.title == "ship it")
+        #expect(p.estimate == 3)
+        #expect(p.isDone == true)
+    }
+
     @Test func numericPriority() {
         #expect(TaskParser.parse("a !2", now: now, calendar: cal).priority == 2)
         #expect(TaskParser.parse("a !9", now: now, calendar: cal).title == "a !9")

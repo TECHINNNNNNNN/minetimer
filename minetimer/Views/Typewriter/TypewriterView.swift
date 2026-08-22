@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct TypewriterView: View {
     @Environment(\.modelContext) private var context
@@ -7,7 +8,7 @@ struct TypewriterView: View {
     @State private var engine = TimerEngine.shared
     @State private var draft = ""
     @State private var pressedKey: Character?
-    @State private var showDone = false
+    @State private var showDone = true
     @FocusState private var focused: Bool
 
     private var open: [TodoItem] { items.filter { !$0.isDone } }
@@ -37,6 +38,8 @@ struct TypewriterView: View {
         .background(Theme.lacquer)
         .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color(hex: 0x120F0D), lineWidth: 2))
         .onChange(of: draft) { old, new in keyTyped(old: old, new: new) }
+        .onPasteCommand(of: [.plainText]) { paste($0) }
+        .onDrop(of: [.fileURL, .plainText], isTargeted: nil) { drop($0) }
     }
 
     private var statusBar: some View {
@@ -60,7 +63,7 @@ struct TypewriterView: View {
     }
 
     private var inputField: some View {
-        TextField("type your plan...  #tag !! @tmr +project", text: $draft)
+        TextField("type your plan...  #tag !! @tmr +project ~2", text: $draft)
             .textFieldStyle(.plain)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.paperInk)
@@ -72,6 +75,11 @@ struct TypewriterView: View {
     }
 
     private func keyTyped(old: String, new: String) {
+        if new.contains("\n") {
+            add(lines: ChecklistLine.lines(from: new))
+            draft = ""
+            return
+        }
         guard new.count > old.count, let c = new.last else { return }
         pressedKey = Character(c.uppercased())
         c == " " ? SoundPlayer.shared.play(.space) : SoundPlayer.shared.playKey()
@@ -82,13 +90,42 @@ struct TypewriterView: View {
     }
 
     private func addTask() {
-        let parsed = TaskParser.parse(draft)
-        guard !parsed.title.isEmpty else { return }
-        let item = TodoItem(title: parsed.title, priority: parsed.priority, dueDate: parsed.dueDate,
-                            tags: parsed.tags, project: parsed.project,
-                            order: (items.map(\.order).max() ?? 0) + 1)
-        context.insert(item)
+        add(lines: [draft])
         draft = ""
+    }
+
+    private func add(lines: [String]) {
+        var order = (items.map(\.order).max() ?? 0) + 1
+        for line in lines {
+            let parsed = TaskParser.parse(line)
+            guard !parsed.title.isEmpty else { continue }
+            context.insert(TodoItem(parsed, order: order))
+            order += 1
+        }
         SoundPlayer.shared.play(.enter)
+    }
+
+    private func paste(_ providers: [NSItemProvider]) {
+        for p in providers {
+            p.loadDataRepresentation(forTypeIdentifier: UTType.plainText.identifier) { data, _ in
+                guard let data, let text = String(data: data, encoding: .utf8) else { return }
+                Task { @MainActor in add(lines: ChecklistLine.lines(from: text)) }
+            }
+        }
+    }
+
+    private func drop(_ providers: [NSItemProvider]) -> Bool {
+        for p in providers {
+            if p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                p.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { data, _ in
+                    guard let data, let url = URL(dataRepresentation: data, relativeTo: nil),
+                          let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+                    Task { @MainActor in add(lines: ChecklistLine.lines(from: text)) }
+                }
+            } else {
+                paste([p])
+            }
+        }
+        return !providers.isEmpty
     }
 }

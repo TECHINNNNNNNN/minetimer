@@ -12,27 +12,24 @@ final class TodoItem {
     var tags: [String]
     var project: String?
     var pomodoros: Int
+    var estimate: Int = 0
     var order: Int
     var createdAt: Date
     var completedAt: Date?
 
-    init(title: String,
-         priority: Int = 0,
-         dueDate: Date? = nil,
-         tags: [String] = [],
-         project: String? = nil,
-         order: Int = 0) {
+    init(_ parsed: ParsedTask, order: Int) {
         self.id = UUID()
-        self.title = title
+        self.title = parsed.title
         self.notes = ""
-        self.isDone = false
-        self.priority = priority
-        self.dueDate = dueDate
-        self.tags = tags
-        self.project = project
+        self.isDone = parsed.isDone
+        self.priority = parsed.priority
+        self.dueDate = parsed.dueDate
+        self.tags = parsed.tags
+        self.project = parsed.project
         self.pomodoros = 0
+        self.estimate = parsed.estimate
         self.order = order
         self.createdAt = .now
-        self.completedAt = nil
+        self.completedAt = parsed.isDone ? .now : nil
     }
 }

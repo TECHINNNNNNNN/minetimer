@@ -62,7 +62,11 @@ struct TaskRow: View {
         }
         if let p = item.project { out.append(("+" + p, Theme.jadeDk)) }
         out += item.tags.map { ("#" + $0, Theme.paperInk.opacity(0.55)) }
-        if item.pomodoros > 0 { out.append((String(repeating: "●", count: min(item.pomodoros, 8)), Theme.gold)) }
+        if item.pomodoros > 0 || item.estimate > 0 {
+            let done = String(repeating: "●", count: min(item.pomodoros, 8))
+            let left = String(repeating: "○", count: max(0, min(item.estimate, 8) - item.pomodoros))
+            out.append((done + left, Theme.gold))
+        }
         return out
     }
 

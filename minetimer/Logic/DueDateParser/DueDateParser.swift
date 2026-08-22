@@ -20,6 +20,7 @@ enum DueDateParser {
 
         let f = DateFormatter()
         f.calendar = calendar
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
         return f.date(from: w)
     }

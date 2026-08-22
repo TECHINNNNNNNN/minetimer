@@ -6,6 +6,8 @@ struct DailyCount {
 
     func key(for date: Date) -> String {
         let f = DateFormatter()
+        f.calendar = Calendar(identifier: .gregorian)
+        f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
         return "completed:" + f.string(from: date)
     }
