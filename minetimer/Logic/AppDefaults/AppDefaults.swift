@@ -17,6 +17,7 @@ enum AppDefaults {
             SettingsKey.musicVolume: 0.6,
             SettingsKey.showTimerWidget: true,
             SettingsKey.showTypewriterWidget: true,
+            SettingsKey.windowMode: WindowMode.desktop.rawValue,
         ])
     }
 }

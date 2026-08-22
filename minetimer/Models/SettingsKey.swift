@@ -14,4 +14,5 @@ enum SettingsKey {
     static let musicVolume = "musicVolume"
     static let showTimerWidget = "showTimerWidget"
     static let showTypewriterWidget = "showTypewriterWidget"
+    static let windowMode = "windowMode"
 }

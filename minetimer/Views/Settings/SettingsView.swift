@@ -14,6 +14,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.notificationsEnabled) private var notifications = true
     @AppStorage(SettingsKey.showTimerWidget) private var showTimer = true
     @AppStorage(SettingsKey.showTypewriterWidget) private var showTypewriter = true
+    @AppStorage(SettingsKey.windowMode) private var windowMode = WindowMode.desktop.rawValue
     @State private var music = MusicPlayer.shared
 
     var body: some View {
@@ -49,6 +50,9 @@ struct SettingsView: View {
             Section("Widgets") {
                 Toggle("Show timer", isOn: $showTimer)
                 Toggle("Show typewriter", isOn: $showTypewriter)
+                Picker("Where they live", selection: $windowMode) {
+                    ForEach(WindowMode.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
+                }
             }
         }
         .formStyle(.grouped)

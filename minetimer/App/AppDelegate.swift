@@ -18,18 +18,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                         origin: CGPoint(x: screen.midX - 210, y: screen.minY + 40)) {
             TypewriterView()
         }
-        syncVisibility()
-        UserDefaults.standard.addObserver(self, forKeyPath: SettingsKey.showTimerWidget, context: nil)
-        UserDefaults.standard.addObserver(self, forKeyPath: SettingsKey.showTypewriterWidget, context: nil)
+        sync()
+        for key in [SettingsKey.showTimerWidget, SettingsKey.showTypewriterWidget, SettingsKey.windowMode] {
+            UserDefaults.standard.addObserver(self, forKeyPath: key, context: nil)
+        }
     }
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?,
                                change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        syncVisibility()
+        sync()
     }
 
-    private func syncVisibility() {
+    private func sync() {
         let d = UserDefaults.standard
+        let mode = WindowMode(rawValue: d.string(forKey: SettingsKey.windowMode) ?? "") ?? .desktop
+        timerPanel?.level = mode.level
+        typewriterPanel?.level = mode.level
         show(timerPanel, d.bool(forKey: SettingsKey.showTimerWidget))
         show(typewriterPanel, d.bool(forKey: SettingsKey.showTypewriterWidget))
     }
