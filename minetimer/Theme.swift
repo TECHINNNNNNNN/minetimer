@@ -15,6 +15,15 @@ enum Theme {
     static let mist      = Color(hex: 0xB8AE9C)
     static let ember     = Color(hex: 0xE0633A)
 
+    static func priority(_ p: Int) -> Color {
+        switch p {
+        case 3: return lacquer
+        case 2: return gold
+        case 1: return paperLine
+        default: return .clear
+        }
+    }
+
     static func mono(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .monospaced)
     }

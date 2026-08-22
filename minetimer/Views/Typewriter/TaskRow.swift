@@ -4,70 +4,100 @@ struct TaskRow: View {
     @Bindable var item: TodoItem
     var engine: TimerEngine
     @Environment(\.modelContext) private var context
+    @State private var hovering = false
 
     private var isActive: Bool { engine.activeTask?.id == item.id }
+    private var isOverdue: Bool { item.dueDate.map { DueLabel.isOverdue($0) } ?? false }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            Button { toggleDone() } label: {
-                Image(systemName: item.isDone ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 12))
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(item.isDone ? Theme.jadeDk : Theme.paperInk)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
-                    .strikethrough(item.isDone)
-                    .font(Theme.mono(11, weight: isActive ? .bold : .regular))
-                    .foregroundStyle(item.isDone ? Theme.paperInk.opacity(0.4) : Theme.paperInk)
-                meta
-            }
-            Spacer(minLength: 0)
-            if isActive {
-                Text("▶").font(Theme.mono(9)).foregroundStyle(Theme.lacquer)
-            }
+        HStack(spacing: 0) {
+            priorityBar
+            checkbox.padding(.trailing, 8)
+            title
+            Spacer(minLength: 10)
+            if !item.isDone { trailing }
+            if hovering { deleteButton } else { Color.clear.frame(width: 14) }
         }
-        .padding(.vertical, 3)
-        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
+        .padding(.trailing, 2)
         .background(isActive ? Theme.gold.opacity(0.18) : .clear)
         .contentShape(Rectangle())
+        .onHover { hovering = $0 }
         .onTapGesture { engine.activeTask = isActive ? nil : item }
-        .contextMenu {
-            Button(isActive ? "Stop focusing" : "Focus on this") { engine.activeTask = isActive ? nil : item }
-            Menu("Priority") {
-                ForEach(0...3, id: \.self) { p in Button(PriorityLabel.name(p)) { item.priority = p } }
-            }
-            Divider()
-            Button("Delete", role: .destructive) { delete() }
-        }
+        .contextMenu { menu }
     }
 
-    @ViewBuilder private var meta: some View {
-        let parts = metaParts
-        if !parts.isEmpty {
-            HStack(spacing: 6) {
-                ForEach(parts, id: \.text) { p in
-                    Text(p.text).font(Theme.mono(8)).foregroundStyle(p.color)
-                }
-            }
-        }
+    private var priorityBar: some View {
+        Rectangle()
+            .fill(item.isDone ? .clear : Theme.priority(item.priority))
+            .frame(width: 3, height: 14)
+            .padding(.trailing, 8)
     }
 
-    private var metaParts: [(text: String, color: Color)] {
-        var out: [(String, Color)] = []
-        if item.priority > 0 { out.append((PriorityLabel.mark(item.priority), Theme.lacquer)) }
-        if let d = item.dueDate {
-            out.append((DueLabel.text(for: d), DueLabel.isOverdue(d) ? Theme.ember : Theme.paperInk.opacity(0.55)))
+    private var checkbox: some View {
+        Button { toggleDone() } label: {
+            Image(systemName: item.isDone ? "checkmark.square.fill" : "square")
+                .font(.system(size: 12))
         }
-        if let p = item.project { out.append(("+" + p, Theme.jadeDk)) }
-        out += item.tags.map { ("#" + $0, Theme.paperInk.opacity(0.55)) }
-        if item.pomodoros > 0 || item.estimate > 0 {
-            let done = String(repeating: "●", count: min(item.pomodoros, 8))
-            let left = String(repeating: "○", count: max(0, min(item.estimate, 8) - item.pomodoros))
-            out.append((done + left, Theme.gold))
+        .buttonStyle(.plain)
+        .foregroundStyle(item.isDone ? Theme.jadeDk : Theme.paperInk)
+    }
+
+    private var title: some View {
+        Text(item.title)
+            .strikethrough(item.isDone)
+            .font(Theme.mono(11, weight: isActive ? .bold : .regular))
+            .foregroundStyle(titleColor)
+            .lineLimit(1)
+            .truncationMode(.tail)
+    }
+
+    private var titleColor: Color {
+        if item.isDone { return Theme.mist }
+        if item.priority == 3 { return Theme.lacquer }
+        return Theme.paperInk
+    }
+
+    private var trailing: some View {
+        HStack(spacing: 8) {
+            if item.pomodoros > 0 || item.estimate > 0 {
+                Text(PomodoroDots.text(done: item.pomodoros, estimate: item.estimate))
+                    .foregroundStyle(Theme.gold)
+            }
+            if let d = item.dueDate {
+                Text(DueLabel.text(for: d).uppercased())
+                    .foregroundStyle(isOverdue ? Theme.ember : Theme.paperInk.opacity(0.7))
+                    .fontWeight(isOverdue ? .bold : .regular)
+            }
+            if let p = item.project {
+                Text("+" + p.uppercased()).foregroundStyle(Theme.jadeDk.opacity(0.8))
+            }
+            ForEach(item.tags, id: \.self) { t in
+                Text(t.uppercased()).foregroundStyle(Theme.paperInk.opacity(0.4))
+            }
         }
-        return out
+        .font(Theme.mono(8, weight: .medium))
+        .lineLimit(1)
+        .layoutPriority(1)
+    }
+
+    private var deleteButton: some View {
+        Button { delete() } label: {
+            Text("×").font(Theme.mono(11, weight: .bold))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(Theme.lacquer)
+        .frame(width: 14)
+        .padding(.leading, 4)
+    }
+
+    @ViewBuilder private var menu: some View {
+        Button(isActive ? "Stop focusing" : "Focus on this") { engine.activeTask = isActive ? nil : item }
+        Menu("Priority") {
+            ForEach(0...3, id: \.self) { p in Button(PriorityLabel.name(p)) { item.priority = p } }
+        }
+        Divider()
+        Button("Delete", role: .destructive) { delete() }
     }
 
     private func toggleDone() {

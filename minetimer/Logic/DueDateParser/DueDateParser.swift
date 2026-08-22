@@ -18,8 +18,11 @@ enum DueDateParser {
             return calendar.date(byAdding: .day, value: delta, to: today)
         }
 
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = calendar.timeZone
         let f = DateFormatter()
-        f.calendar = calendar
+        f.calendar = gregorian
+        f.timeZone = calendar.timeZone
         f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "yyyy-MM-dd"
         return f.date(from: w)

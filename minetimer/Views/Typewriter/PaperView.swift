@@ -9,24 +9,30 @@ struct PaperView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    if open.isEmpty && (done.isEmpty || !showDone) {
-                        Text("nothing yet. type below.")
-                            .font(Theme.mono(11))
-                            .foregroundStyle(Theme.paperInk.opacity(0.4))
-                            .padding(.vertical, 8)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
+                        if open.isEmpty && (done.isEmpty || !showDone) {
+                            Text("nothing yet. type below.")
+                                .font(Theme.mono(11))
+                                .foregroundStyle(Theme.paperInk.opacity(0.4))
+                                .padding(.vertical, 8)
+                        }
+                        ForEach(open) { TaskRow(item: $0, engine: engine).id($0.id) }
+                        if showDone, !done.isEmpty {
+                            Divider().padding(.vertical, 4)
+                            ForEach(done) { TaskRow(item: $0, engine: engine).id($0.id) }
+                        }
                     }
-                    ForEach(open) { TaskRow(item: $0, engine: engine) }
-                    if showDone, !done.isEmpty {
-                        Divider().padding(.vertical, 4)
-                        ForEach(done) { TaskRow(item: $0, engine: engine) }
-                    }
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                .frame(maxHeight: 260)
+                .onChange(of: open.map(\.id)) { old, new in
+                    guard new.count > old.count, let added = new.last(where: { !old.contains($0) }) else { return }
+                    withAnimation { proxy.scrollTo(added, anchor: .bottom) }
+                }
             }
-            .frame(maxHeight: 260)
         }
         .background(Theme.paper)
         .overlay(Rectangle().stroke(Color(hex: 0x120F0D), lineWidth: 2))

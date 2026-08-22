@@ -23,6 +23,13 @@ struct DueDateParserTests {
         #expect(DueDateParser.date(from: "2026-09-01", now: saturday, calendar: cal) == sept1)
     }
 
+    @Test func isoDateIsGregorianEvenOnBuddhistCalendar() {
+        var buddhist = Calendar(identifier: .buddhist)
+        buddhist.timeZone = cal.timeZone
+        let sept1 = cal.date(from: DateComponents(year: 2026, month: 9, day: 1))
+        #expect(DueDateParser.date(from: "2026-09-01", now: saturday, calendar: buddhist) == sept1)
+    }
+
     @Test func garbageIsNil() {
         #expect(DueDateParser.date(from: "bob", now: saturday, calendar: cal) == nil)
     }

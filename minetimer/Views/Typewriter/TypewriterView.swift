@@ -11,7 +11,9 @@ struct TypewriterView: View {
     @State private var showDone = true
     @FocusState private var focused: Bool
 
-    private var open: [TodoItem] { items.filter { !$0.isDone } }
+    private var open: [TodoItem] {
+        TaskSort.sorted(items.filter { !$0.isDone }, priority: \.priority, order: \.order)
+    }
     private var done: [TodoItem] { items.filter { $0.isDone } }
 
     var body: some View {
