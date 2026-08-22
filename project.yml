@@ -1,0 +1,52 @@
+name: minetimer
+options:
+  bundleIdPrefix: com.techin
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: NO
+    ENABLE_APP_SANDBOX: NO
+targets:
+  minetimer:
+    type: application
+    platform: macOS
+    sources:
+      - path: minetimer
+        excludes:
+          - "**/*Tests.swift"
+    info:
+      path: minetimer/Info.plist
+      properties:
+        CFBundleDisplayName: minetimer
+        CFBundleName: minetimer
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.productivity
+        NSHumanReadableCopyright: "MIT"
+  minetimerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: minetimer
+        includes:
+          - "**/*Tests.swift"
+    dependencies:
+      - target: minetimer
+schemes:
+  minetimer:
+    build:
+      targets:
+        minetimer: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - minetimerTests

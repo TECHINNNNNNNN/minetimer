@@ -1,0 +1,17 @@
+enum SettingsKey {
+    static let workMinutes = "workMinutes"
+    static let shortBreakMinutes = "shortBreakMinutes"
+    static let longBreakMinutes = "longBreakMinutes"
+    static let longBreakEvery = "longBreakEvery"
+    static let dailyGoal = "dailyGoal"
+    static let autoStartBreaks = "autoStartBreaks"
+    static let autoStartWork = "autoStartWork"
+    static let soundsEnabled = "soundsEnabled"
+    static let typewriterSound = "typewriterSound"
+    static let tickSound = "tickSound"
+    static let notificationsEnabled = "notificationsEnabled"
+    static let musicFolder = "musicFolder"
+    static let musicVolume = "musicVolume"
+    static let showTimerWidget = "showTimerWidget"
+    static let showTypewriterWidget = "showTypewriterWidget"
+}
