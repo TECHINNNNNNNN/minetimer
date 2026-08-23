@@ -6,6 +6,7 @@ struct PaperView: View {
     let done: [TodoItem]
     let query: String?
     var engine: TimerEngine
+    var depth: (TodoItem) -> Int
     var onReorder: (UUID, UUID) -> Void
 
     private var isEmpty: Bool { sections.allSatisfy(\.items.isEmpty) && done.isEmpty }
@@ -42,7 +43,7 @@ struct PaperView: View {
     }
 
     private func row(_ item: TodoItem) -> some View {
-        TaskRow(item: item, engine: engine)
+        TaskRow(item: item, depth: depth(item), engine: engine)
             .id(item.id)
             .draggable(item.id.uuidString)
             .dropDestination(for: String.self) { dropped, _ in

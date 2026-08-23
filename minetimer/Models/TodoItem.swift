@@ -14,6 +14,7 @@ final class TodoItem {
     var pomodoros: Int
     var estimate: Int = 0
     var repeatRaw: String? = nil
+    var parentID: UUID? = nil
     var order: Int
     var createdAt: Date
     var completedAt: Date?
@@ -23,7 +24,7 @@ final class TodoItem {
         set { repeatRaw = newValue?.raw }
     }
 
-    init(_ parsed: ParsedTask, order: Int) {
+    init(_ parsed: ParsedTask, order: Int, parentID: UUID? = nil) {
         self.id = UUID()
         self.title = parsed.title
         self.notes = ""
@@ -35,6 +36,7 @@ final class TodoItem {
         self.pomodoros = 0
         self.estimate = parsed.estimate
         self.repeatRaw = parsed.repeatRule?.raw
+        self.parentID = parentID
         self.order = order
         self.createdAt = .now
         self.completedAt = parsed.isDone ? .now : nil
@@ -52,8 +54,19 @@ final class TodoItem {
         self.pomodoros = 0
         self.estimate = item.estimate
         self.repeatRaw = item.repeatRaw
+        self.parentID = item.parentID
         self.order = item.order
         self.createdAt = .now
         self.completedAt = nil
+    }
+
+    func apply(_ parsed: ParsedTask) {
+        title = parsed.title
+        priority = parsed.priority
+        dueDate = parsed.dueDate
+        tags = parsed.tags
+        project = parsed.project
+        estimate = parsed.estimate
+        repeatRaw = parsed.repeatRule?.raw
     }
 }

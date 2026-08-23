@@ -10,6 +10,7 @@ struct TypewriterView: View {
     @State private var pressedKey: Character?
     @State private var mode: PaperMode = .today
     @State private var showDone = true
+    @State private var lastAdded: TodoItem?
     @FocusState private var focused: Bool
 
     private var query: String? { SearchFilter.query(from: draft) }
@@ -23,6 +24,15 @@ struct TypewriterView: View {
         TaskSort.sorted(visible.filter { !$0.isDone }, priority: \.priority, order: \.order)
     }
 
+    private var todayTree: [(item: TodoItem, depth: Int)] {
+        let today = open.filter { TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) }
+        return TreeOrder.flatten(today, id: \.id, parent: \.parentID)
+    }
+
+    private func depth(of item: TodoItem) -> Int {
+        mode == .today ? todayTree.first { $0.item.id == item.id }?.depth ?? 0 : 0
+    }
+
     private var doneToday: [TodoItem] {
         visible.filter { $0.isDone && DoneVisibility.isOnPaper(completedAt: $0.completedAt, now: .now, calendar: .current) }
     }
@@ -30,7 +40,7 @@ struct TypewriterView: View {
     private var sections: [PaperSection<TodoItem>] {
         switch mode {
         case .today:
-            return [PaperSection(title: nil, items: open.filter { TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) })]
+            return [PaperSection(title: nil, items: todayTree.map(\.item))]
         case .upcoming:
             let later = open.filter { !TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) }
             return DateGroups.sections(later, date: \.dueDate, calendar: .current, ascending: true) { DueLabel.text(for: $0) }
@@ -50,10 +60,33 @@ struct TypewriterView: View {
         VStack(spacing: 0) {
             PaperView(mode: mode, sections: sections,
                       done: mode == .today && showDone ? doneToday : [],
-                      query: query, engine: engine, onReorder: reorder)
+                      query: query, engine: engine, depth: depth(of:), onReorder: reorder)
                 .frame(width: 360)
             bodyShell
         }
+        .background { shortcuts }
+    }
+
+    private var shortcuts: some View {
+        Group {
+            Button("") { focused = true }.keyboardShortcut("n", modifiers: .command)
+            Button("") { if let t = engine.activeTask { t.isDone.toggle(); t.completedAt = t.isDone ? .now : nil; engine.activeTask = nil } }
+                .keyboardShortcut(.return, modifiers: .command)
+            Button("") { if let t = engine.activeTask { engine.activeTask = nil; context.delete(t) } }
+                .keyboardShortcut(.delete, modifiers: .command)
+            Button("") { step(-1) }.keyboardShortcut(.upArrow, modifiers: .command)
+            Button("") { step(1) }.keyboardShortcut(.downArrow, modifiers: .command)
+            Button("") { draft = "/"; focused = true }.keyboardShortcut("f", modifiers: .command)
+        }
+        .opacity(0)
+        .frame(width: 0, height: 0)
+    }
+
+    private func step(_ delta: Int) {
+        let list = sections.flatMap(\.items)
+        guard !list.isEmpty else { return }
+        let i = list.firstIndex { $0.id == engine.activeTask?.id } ?? (delta > 0 ? -1 : list.count)
+        engine.activeTask = list[max(0, min(list.count - 1, i + delta))]
     }
 
     private var bodyShell: some View {
@@ -108,7 +141,7 @@ struct TypewriterView: View {
     }
 
     private var inputField: some View {
-        TextField("type your plan...  #tag !! @tmr +project ~2 *daily  /search", text: $draft)
+        TextField("type your plan...  #tag !! @tmr +project ~2 *daily  > subtask  /search", text: $draft)
             .textFieldStyle(.plain)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.paperInk)
@@ -141,12 +174,16 @@ struct TypewriterView: View {
 
     private func add(lines: [String]) {
         var order = (items.map(\.order).max() ?? 0) + 1
+        var parent: TodoItem? = lastAdded ?? engine.activeTask
         for line in lines {
             let parsed = TaskParser.parse(line)
             guard !parsed.title.isEmpty else { continue }
-            context.insert(TodoItem(parsed, order: order))
+            let item = TodoItem(parsed, order: order, parentID: parsed.isChild ? parent?.id : nil)
+            context.insert(item)
+            if !parsed.isChild { parent = item }
             order += 1
         }
+        lastAdded = parent
         SoundPlayer.shared.play(.enter)
     }
 

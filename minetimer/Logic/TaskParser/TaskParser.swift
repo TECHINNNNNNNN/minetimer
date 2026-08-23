@@ -1,10 +1,13 @@
 import Foundation
 
-// "fix login bug #backend !3 @tomorrow +minetimer ~2 *weekdays"
+// "fix login bug #backend !3 @tomorrow +minetimer ~2 *weekdays", "> subtask"
 enum TaskParser {
     static func parse(_ input: String, now: Date = .now, calendar: Calendar = .current) -> ParsedTask {
-        let (body, isDone) = ChecklistLine.strip(input)
-        var result = ParsedTask(title: "", isDone: isDone)
+        let isChild = ChecklistLine.isChild(input)
+        var line = input.trimmingCharacters(in: .whitespaces)
+        if line.hasPrefix(">") { line = String(line.dropFirst()) }
+        let (body, isDone) = ChecklistLine.strip(line)
+        var result = ParsedTask(title: "", isDone: isDone, isChild: isChild)
         var words: [String] = []
 
         for word in body.split(separator: " ").map(String.init) {

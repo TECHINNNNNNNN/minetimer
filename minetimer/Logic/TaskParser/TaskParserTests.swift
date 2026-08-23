@@ -32,6 +32,14 @@ struct TaskParserTests {
         #expect(p.repeatRule == .weekdays)
     }
 
+    @Test func subtaskPrefix() {
+        let p = TaskParser.parse("> write tests", now: now, calendar: cal)
+        #expect(p.title == "write tests")
+        #expect(p.isChild == true)
+        #expect(TaskParser.parse("  - indented", now: now, calendar: cal).isChild == true)
+        #expect(TaskParser.parse("top", now: now, calendar: cal).isChild == false)
+    }
+
     @Test func numericPriority() {
         #expect(TaskParser.parse("a !2", now: now, calendar: cal).priority == 2)
         #expect(TaskParser.parse("a !9", now: now, calendar: cal).title == "a !9")

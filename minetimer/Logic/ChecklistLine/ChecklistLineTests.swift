@@ -21,7 +21,14 @@ struct ChecklistLineTests {
         #expect(ChecklistLine.strip("[X] buy milk").isDone == true)
     }
 
-    @Test func linesSkipBlankAndHeadings() {
-        #expect(ChecklistLine.lines(from: "# Plan\n\n- a\n  - b\n") == ["- a", "- b"])
+    @Test func linesKeepIndentSkipBlankAndHeadings() {
+        #expect(ChecklistLine.lines(from: "# Plan\n\n- a\n  - b  \n") == ["- a", "  - b"])
+    }
+
+    @Test func childDetection() {
+        #expect(ChecklistLine.isChild("  - b") == true)
+        #expect(ChecklistLine.isChild("\tb") == true)
+        #expect(ChecklistLine.isChild("> b") == true)
+        #expect(ChecklistLine.isChild("- b") == false)
     }
 }

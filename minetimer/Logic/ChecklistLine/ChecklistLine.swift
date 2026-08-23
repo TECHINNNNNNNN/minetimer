@@ -21,9 +21,14 @@ enum ChecklistLine {
         return (s.trimmingCharacters(in: .whitespaces), done)
     }
 
+    /// Indented lines and lines starting with ">" are subtasks of the line before.
+    static func isChild(_ line: String) -> Bool {
+        line.hasPrefix("\t") || line.hasPrefix("  ") || line.trimmingCharacters(in: .whitespaces).hasPrefix(">")
+    }
+
     static func lines(from text: String) -> [String] {
         text.components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty && !$0.hasPrefix("#") }
+            .map { $0.replacingOccurrences(of: "\\s+$", with: "", options: .regularExpression) }
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty && !$0.hasPrefix("#") }
     }
 }
