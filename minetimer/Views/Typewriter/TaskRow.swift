@@ -202,7 +202,8 @@ struct TaskRow: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(isActive ? Theme.paper : Theme.lacquer)
-        .padding(.trailing, 8)
+        .padding(.leading, 14)
+        .padding(.trailing, 10)
     }
 
     private var isFull: Bool { item.estimate > 0 && item.pomodoros >= item.estimate }
