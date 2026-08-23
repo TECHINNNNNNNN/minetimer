@@ -17,7 +17,9 @@ final class TimerEngine {
     private(set) var startCount = 0
     private(set) var finishCount = 0
     var activeTask: TodoItem?
+    var activeTrackNumber: Int?
     private(set) var suggestedTask: TodoItem?
+    private(set) var askDone: TodoItem?
 
     private var endDate: Date?
     private var sessionStart: Date?
@@ -37,6 +39,7 @@ final class TimerEngine {
     var goalProgress: Double { min(1, Double(completedToday) / Double(max(1, dailyGoal))) }
     var progress: Double { total > 0 ? 1 - remaining / total : 0 }
     var clock: String { ClockFormat.mmss(remaining) }
+    var elapsedClock: String { ClockFormat.mmss(total - remaining) }
     var minutesLeft: Int { ClockFormat.minutesLeft(remaining) }
 
     func duration(for phase: Phase) -> TimeInterval {
@@ -106,10 +109,23 @@ final class TimerEngine {
 
     /// The task being worked on was checked off. Offer the next one.
     func taskFinished(_ task: TodoItem) {
+        askDone = nil
         guard activeTask?.id == task.id else { return }
         activeTask = nil
+        activeTrackNumber = nil
         suggestedTask = topTask(excluding: task.id)
     }
+
+    /// "Done with it?" after a track has played all its estimated sessions.
+    func markAskedDone() {
+        guard let t = askDone else { return }
+        t.isDone = true
+        t.completedAt = .now
+        try? context.save()
+        taskFinished(t)
+    }
+
+    func keepGoing() { askDone = nil }
 
     func acceptSuggestion() {
         guard let s = suggestedTask else { return }
@@ -183,6 +199,7 @@ final class TimerEngine {
         finishCount += 1
         daily.save(completedToday)
         activeTask?.pomodoros += 1
+        if let t = activeTask, t.estimate > 0, t.pomodoros >= t.estimate { askDone = t }
         context.insert(FocusSession(start: sessionStart ?? Date().addingTimeInterval(-total),
                                     duration: total,
                                     taskTitle: activeTask?.title,

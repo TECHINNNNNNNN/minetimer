@@ -28,7 +28,16 @@ struct TaskRow: View {
                 if editing { editor } else { title }
                 Spacer(minLength: 10)
                 if item.isRoutine, streak > 0 { streakLabel.padding(.trailing, 10) }
+                if isActive, engine.isRunning, !engine.phase.isBreak { liveMarker }
+                if isFull, !item.isDone {
+                    Text("FULL").font(Theme.mono(7, weight: .bold)).tracking(1.5)
+                        .foregroundStyle(isActive ? Theme.lacquer : Theme.paper)
+                        .padding(.horizontal, 4).padding(.vertical, 1)
+                        .background(isActive ? Theme.paper : Theme.lacquer)
+                        .padding(.trailing, 10)
+                }
                 if !item.isDone && !editing { trailing }
+                if hovering && !editing && !item.isDone { playButton }
                 if hovering && !editing { deleteButton } else { Color.clear.frame(width: 14) }
             }
             if showNotes || !item.notes.isEmpty { notes }
@@ -44,7 +53,7 @@ struct TaskRow: View {
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(count: 2) { beginEdit() }
-        .onTapGesture(count: 1) { engine.activeTask = isActive ? nil : item }
+        .onTapGesture(count: 1) { focus(isActive ? nil : item) }
         .contextMenu { menu }
     }
 
@@ -178,6 +187,36 @@ struct TaskRow: View {
         .layoutPriority(1)
     }
 
+    private func focus(_ target: TodoItem?) {
+        engine.activeTask = target
+        engine.activeTrackNumber = target == nil || item.isRoutine ? nil : number
+    }
+
+    // One click: this becomes the track and the incense lights.
+    private var playButton: some View {
+        Button {
+            focus(item)
+            if !engine.isRunning { engine.start() }
+        } label: {
+            Text("▶").font(Theme.mono(9, weight: .bold))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(isActive ? Theme.paper : Theme.lacquer)
+        .padding(.trailing, 8)
+    }
+
+    private var isFull: Bool { item.estimate > 0 && item.pomodoros >= item.estimate }
+
+    // While this track plays: an ember and the elapsed time.
+    private var liveMarker: some View {
+        HStack(spacing: 5) {
+            Ellipse().fill(Theme.lacquer).frame(width: 4, height: 7)
+                .modifier(Pulse())
+            Text(engine.elapsedClock).font(Theme.mono(9)).monospacedDigit().foregroundStyle(Theme.paper)
+        }
+        .padding(.trailing, 10)
+    }
+
     private var deleteButton: some View {
         Button { delete() } label: {
             Text("×").font(Theme.mono(11, weight: .bold))
@@ -189,7 +228,7 @@ struct TaskRow: View {
     }
 
     @ViewBuilder private var menu: some View {
-        Button(isActive ? "Stop focusing" : "Focus on this") { engine.activeTask = isActive ? nil : item }
+        Button(isActive ? "Stop focusing" : "Focus on this") { focus(isActive ? nil : item) }
         Button("Edit") { beginEdit() }
         Button(item.isRoutine ? "Remove from routine" : "Make routine") { item.isRoutine.toggle() }
         if item.isRoutine, eras.count > 1 {
@@ -263,5 +302,15 @@ struct TaskRow: View {
     private func delete() {
         if isActive { engine.activeTask = nil }
         context.delete(item)
+    }
+}
+
+struct Pulse: ViewModifier {
+    @State private var on = false
+    func body(content: Content) -> some View {
+        content
+            .opacity(on ? 1 : 0.35)
+            .animation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true), value: on)
+            .onAppear { on = true }
     }
 }

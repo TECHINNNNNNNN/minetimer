@@ -88,7 +88,7 @@ struct TypewriterView: View {
         VStack(spacing: 0) {
             PaperView(mode: mode, sections: sections,
                       done: mode == .today && showDone ? doneToday : [],
-                      query: query, played: "\(doneToday.count) / \(doneToday.count + open.count) played",
+                      query: query, played: "\(doneToday.count) / \(doneToday.count + open.count) played · \(engine.completedToday) sessions",
                       routine: routine, routineState: routineState, era: era, eras: eras, onRoutineToggle: toggleRoutine,
                       engine: engine, depth: depth(of:), onReorder: reorder)
                 .frame(width: 420)
@@ -116,7 +116,9 @@ struct TypewriterView: View {
         let list = sections.flatMap(\.items)
         guard !list.isEmpty else { return }
         let i = list.firstIndex { $0.id == engine.activeTask?.id } ?? (delta > 0 ? -1 : list.count)
-        engine.activeTask = list[max(0, min(list.count - 1, i + delta))]
+        let j = max(0, min(list.count - 1, i + delta))
+        engine.activeTask = list[j]
+        engine.activeTrackNumber = j + 1
     }
 
     private var bodyShell: some View {
