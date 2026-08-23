@@ -8,19 +8,49 @@ struct TypewriterView: View {
     @State private var engine = TimerEngine.shared
     @State private var draft = ""
     @State private var pressedKey: Character?
+    @State private var mode: PaperMode = .today
     @State private var showDone = true
     @FocusState private var focused: Bool
 
-    private var open: [TodoItem] {
-        TaskSort.sorted(items.filter { !$0.isDone }, priority: \.priority, order: \.order)
+    private var query: String? { SearchFilter.query(from: draft) }
+
+    private var visible: [TodoItem] {
+        guard let q = query else { return items }
+        return items.filter { SearchFilter.matches(title: $0.title, tags: $0.tags, project: $0.project, query: q) }
     }
-    private var done: [TodoItem] {
-        items.filter { $0.isDone && DoneVisibility.isOnPaper(completedAt: $0.completedAt, now: .now, calendar: .current) }
+
+    private var open: [TodoItem] {
+        TaskSort.sorted(visible.filter { !$0.isDone }, priority: \.priority, order: \.order)
+    }
+
+    private var doneToday: [TodoItem] {
+        visible.filter { $0.isDone && DoneVisibility.isOnPaper(completedAt: $0.completedAt, now: .now, calendar: .current) }
+    }
+
+    private var sections: [PaperSection<TodoItem>] {
+        switch mode {
+        case .today:
+            return [PaperSection(title: nil, items: open.filter { TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) })]
+        case .upcoming:
+            let later = open.filter { !TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) }
+            return DateGroups.sections(later, date: \.dueDate, calendar: .current, ascending: true) { DueLabel.text(for: $0) }
+        case .projects:
+            return GroupBy.sections(open, keys: { $0.project.map { [$0] } ?? [] }, title: { "+" + $0 }, fallback: "no project")
+        case .tags:
+            return GroupBy.sections(open, keys: \.tags, title: { "#" + $0 }, fallback: "no tag")
+        case .history:
+            let finished = visible.filter(\.isDone)
+            return DateGroups.sections(finished, date: \.completedAt, calendar: .current, ascending: false) {
+                $0.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
+            }
+        }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            PaperView(open: open, done: done, showDone: $showDone, engine: engine)
+            PaperView(mode: mode, sections: sections,
+                      done: mode == .today && showDone ? doneToday : [],
+                      query: query, engine: engine, onReorder: reorder)
                 .frame(width: 360)
             bodyShell
         }
@@ -50,9 +80,20 @@ struct TypewriterView: View {
         HStack {
             Button { focused = true } label: { Text("+").bold() }
             Spacer()
-            Text("\(done.count)/\(done.count + open.count) done")
+            Text("\(doneToday.count)/\(doneToday.count + open.count) done")
             Spacer()
-            Button { showDone.toggle() } label: { Text("≡") }
+            Menu {
+                ForEach(PaperMode.allCases, id: \.self) { m in
+                    Button { mode = m } label: {
+                        Text(m == mode ? "● \(m.label)" : "   \(m.label)")
+                    }
+                }
+                Divider()
+                Toggle("Show done", isOn: $showDone)
+            } label: { Text("≡") }
+            .menuStyle(.button)
+            .menuIndicator(.hidden)
+            .fixedSize()
             Button { MusicPlayer.shared.toggle() } label: {
                 Text(MusicPlayer.shared.isPlaying ? "♫" : "♪")
             }
@@ -67,7 +108,7 @@ struct TypewriterView: View {
     }
 
     private var inputField: some View {
-        TextField("type your plan...  #tag !! @tmr +project ~2 *daily", text: $draft)
+        TextField("type your plan...  #tag !! @tmr +project ~2 *daily  /search", text: $draft)
             .textFieldStyle(.plain)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.paperInk)
@@ -94,7 +135,7 @@ struct TypewriterView: View {
     }
 
     private func addTask() {
-        add(lines: [draft])
+        if query == nil { add(lines: [draft]) }
         draft = ""
     }
 
@@ -107,6 +148,12 @@ struct TypewriterView: View {
             order += 1
         }
         SoundPlayer.shared.play(.enter)
+    }
+
+    private func reorder(moving: UUID, onto target: UUID) {
+        let ids = Reorder.move(items.map(\.id), moving: moving, onto: target)
+        let byID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        for (i, id) in ids.enumerated() { byID[id]?.order = i }
     }
 
     private func paste(_ providers: [NSItemProvider]) {
