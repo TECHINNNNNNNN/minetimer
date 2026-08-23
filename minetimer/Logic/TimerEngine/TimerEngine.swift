@@ -48,7 +48,6 @@ final class TimerEngine {
 
     func start() {
         guard !isRunning else { return }
-        if phase == .work, activeTask == nil { activeTask = topTask(excluding: nil) }
         suggestedTask = nil
         if sessionStart == nil { sessionStart = .now }
         endDate = Date().addingTimeInterval(remaining)
@@ -106,7 +105,7 @@ final class TimerEngine {
 
     func dismissSuggestion() { suggestedTask = nil }
 
-    private func topTask(excluding: UUID?) -> TodoItem? {
+    private func topTask(excluding: UUID) -> TodoItem? {
         let all = (try? context.fetch(FetchDescriptor<TodoItem>(sortBy: [SortDescriptor(\.order)]))) ?? []
         let ordered = TaskSort.sorted(all, priority: \.priority, order: \.order)
         return NextTask.pick(ordered,
