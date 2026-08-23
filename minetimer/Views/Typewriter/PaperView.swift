@@ -9,6 +9,8 @@ struct PaperView: View {
     let played: String
     var routine: [TodoItem] = []
     var routineState = RoutineState()
+    var era: String = Eras.defaultName
+    var eras: [String] = []
     var onRoutineToggle: (TodoItem) -> Void = { _ in }
     var engine: TimerEngine
     var depth: (TodoItem) -> Int
@@ -23,9 +25,9 @@ struct PaperView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         if mode == .today, !routine.isEmpty {
-                            sectionTitle("routine")
+                            sectionTitle(era == Eras.defaultName ? "routine" : "routine · \(era)")
                             ForEach(routine) { item in
-                                TaskRow(item: item, depth: 0, engine: engine,
+                                TaskRow(item: item, depth: 0, engine: engine, eras: eras,
                                         routineDone: routineState.doneToday.contains(item.id),
                                         streak: routineState.streaks[item.id] ?? 0,
                                         onRoutineToggle: { onRoutineToggle(item) })

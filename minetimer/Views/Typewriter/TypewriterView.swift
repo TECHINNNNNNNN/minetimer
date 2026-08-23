@@ -12,16 +12,19 @@ struct TypewriterView: View {
     @State private var mode: PaperMode = .today
     @State private var showDone = true
     @State private var lastAdded: TodoItem?
+    @AppStorage(SettingsKey.currentEra) private var era = Eras.defaultName
     @FocusState private var focused: Bool
 
     private var query: String? { SearchFilter.query(from: draft) }
     private var items: [TodoItem] { allItems.filter { !$0.isRoutine } }
 
     private var routine: [TodoItem] {
-        let all = allItems.filter { $0.isRoutine }
+        let all = allItems.filter { $0.isRoutine && Eras.name(of: $0.era) == era }
         guard let q = query else { return all }
         return all.filter { SearchFilter.matches(title: $0.title, tags: $0.tags, project: $0.project, query: q) }
     }
+
+    private var eras: [String] { Eras.list(from: allItems.filter(\.isRoutine).map(\.era)) }
 
     private var routineState: RoutineState {
         RoutineToday.state(logs: logs.map { ($0.itemID, $0.day) }, now: .now, calendar: .current)
@@ -86,7 +89,7 @@ struct TypewriterView: View {
             PaperView(mode: mode, sections: sections,
                       done: mode == .today && showDone ? doneToday : [],
                       query: query, played: "\(doneToday.count) / \(doneToday.count + open.count) played",
-                      routine: routine, routineState: routineState, onRoutineToggle: toggleRoutine,
+                      routine: routine, routineState: routineState, era: era, eras: eras, onRoutineToggle: toggleRoutine,
                       engine: engine, depth: depth(of:), onReorder: reorder)
                 .frame(width: 420)
             bodyShell
@@ -145,6 +148,11 @@ struct TypewriterView: View {
                     }
                 }
                 Divider()
+                Menu("Era · \(era)") {
+                    ForEach(eras, id: \.self) { e in
+                        Button { era = e } label: { Text(e == era ? "● \(e)" : "   \(e)") }
+                    }
+                }
                 Toggle("Show done", isOn: $showDone)
             } label: { Text("≡") }
             .menuStyle(.button)

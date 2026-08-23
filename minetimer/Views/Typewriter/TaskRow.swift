@@ -5,6 +5,7 @@ struct TaskRow: View {
     var number: Int = 0
     var depth: Int = 0
     var engine: TimerEngine
+    var eras: [String] = []
     var routineDone: Bool? = nil
     var streak: Int = 0
     var onRoutineToggle: () -> Void = {}
@@ -191,6 +192,13 @@ struct TaskRow: View {
         Button(isActive ? "Stop focusing" : "Focus on this") { engine.activeTask = isActive ? nil : item }
         Button("Edit") { beginEdit() }
         Button(item.isRoutine ? "Remove from routine" : "Make routine") { item.isRoutine.toggle() }
+        if item.isRoutine, eras.count > 1 {
+            Menu("Era") {
+                ForEach(eras, id: \.self) { e in
+                    Button(e == Eras.name(of: item.era) ? "● \(e)" : "   \(e)") { item.era = e == Eras.defaultName ? nil : e }
+                }
+            }
+        }
         Button(showNotes || !item.notes.isEmpty ? "Hide notes" : "Notes") {
             showNotes.toggle()
             if !showNotes { item.notes = "" }

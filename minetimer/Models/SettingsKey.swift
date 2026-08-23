@@ -16,4 +16,5 @@ enum SettingsKey {
     static let showTypewriterWidget = "showTypewriterWidget"
     static let windowMode = "windowMode"
     static let quickAddHotKey = "quickAddHotKey"
+    static let currentEra = "currentEra"
 }

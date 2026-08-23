@@ -17,8 +17,9 @@ enum TaskParser {
                 result.project = String(word.dropFirst())
             } else if word.hasPrefix("~"), let n = Int(word.dropFirst()), n > 0 {
                 result.estimate = n
-            } else if word == "*routine" {
+            } else if word == "*routine" || word.hasPrefix("*routine:") {
                 result.isRoutine = true
+                result.era = Eras.normalize(String(word.dropFirst("*routine:".count)))
             } else if word.hasPrefix("*"), let r = RepeatParser.rule(from: String(word.dropFirst())) {
                 result.repeatRule = r
             } else if let p = priority(from: word) {

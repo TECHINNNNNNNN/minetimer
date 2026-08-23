@@ -14,6 +14,10 @@ enum TaskAdder {
             let parsed = TaskParser.parse(line)
             guard !parsed.title.isEmpty else { continue }
             let item = TodoItem(parsed, order: order, parentID: parsed.isChild ? parent?.id : nil)
+            if item.isRoutine, item.era == nil {
+                let current = UserDefaults.standard.string(forKey: SettingsKey.currentEra) ?? Eras.defaultName
+                item.era = current == Eras.defaultName ? nil : current
+            }
             context.insert(item)
             added.append(item)
             if !parsed.isChild { parent = item }

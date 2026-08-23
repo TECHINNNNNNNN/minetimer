@@ -16,6 +16,7 @@ final class TodoItem {
     var repeatRaw: String? = nil
     var parentID: UUID? = nil
     var isRoutine: Bool = false
+    var era: String? = nil
     var order: Int
     var createdAt: Date
     var completedAt: Date?
@@ -39,6 +40,7 @@ final class TodoItem {
         self.repeatRaw = parsed.repeatRule?.raw
         self.parentID = parentID
         self.isRoutine = parsed.isRoutine
+        self.era = parsed.era
         self.order = order
         self.createdAt = .now
         self.completedAt = parsed.isDone ? .now : nil
@@ -76,6 +78,7 @@ final class TodoItem {
         repeatRaw = r.repeatRule
         parentID = r.parentID
         isRoutine = r.isRoutine ?? false
+        era = r.era
         order = r.order
         createdAt = r.createdAt
         completedAt = r.completedAt
