@@ -44,13 +44,24 @@ struct TaskRow: View {
             .padding(.trailing, 8)
     }
 
+    // Open = empty box. Done = a red seal stamp.
     private var checkbox: some View {
         Button { toggleDone() } label: {
-            Image(systemName: item.isDone ? "checkmark.square.fill" : "square")
-                .font(.system(size: 12))
+            if item.isDone {
+                Text("完")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(Theme.paper)
+                    .frame(width: 14, height: 14)
+                    .background(RoundedRectangle(cornerRadius: 2).fill(Theme.lacquer))
+                    .rotationEffect(.degrees(-8))
+            } else {
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(Theme.paperInk, lineWidth: 1.5)
+                    .frame(width: 12, height: 12)
+                    .padding(1)
+            }
         }
         .buttonStyle(.plain)
-        .foregroundStyle(item.isDone ? Theme.jadeDk : Theme.paperInk)
     }
 
     private var title: some View {

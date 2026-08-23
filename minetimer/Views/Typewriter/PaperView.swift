@@ -37,9 +37,28 @@ struct PaperView: View {
                 }
             }
         }
-        .background(Theme.paper)
-        .overlay(Rectangle().stroke(Color(hex: 0x120F0D), lineWidth: 2))
-        .padding(.bottom, -2)
+        .background {
+            ZStack {
+                Theme.paper
+                Grain(opacity: 0.05)
+            }
+        }
+        .overlay(Rectangle().stroke(Theme.edge, lineWidth: 2))
+        .overlay(alignment: .top) { topRod }
+        .padding(.top, 8)
+    }
+
+    // The scroll's top rod.
+    private var topRod: some View {
+        HStack(spacing: 0) {
+            Circle().fill(Theme.gold).frame(width: 14, height: 14)
+            Rectangle()
+                .fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze, Theme.edge], startPoint: .top, endPoint: .bottom))
+                .frame(height: 12)
+            Circle().fill(Theme.gold).frame(width: 14, height: 14)
+        }
+        .padding(.horizontal, -8)
+        .offset(y: -7)
     }
 
     private func row(_ item: TodoItem) -> some View {
@@ -85,7 +104,7 @@ struct PaperView: View {
                 .lineLimit(1)
         }
         .padding(.horizontal, 16)
-        .padding(.top, 14)
+        .padding(.top, 18)
         .padding(.bottom, 8)
     }
 

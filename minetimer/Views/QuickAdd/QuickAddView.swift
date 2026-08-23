@@ -9,7 +9,7 @@ struct QuickAddView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text("ยักษ์").font(Theme.mono(13, weight: .bold)).foregroundStyle(Theme.lacquer)
+            Text("孔明").font(Theme.mono(13, weight: .bold)).foregroundStyle(Theme.lacquer)
             TextField("new task...  #tag !! @tmr +project ~2", text: $draft)
                 .textFieldStyle(.plain)
                 .font(Theme.mono(13))

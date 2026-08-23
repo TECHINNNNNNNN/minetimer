@@ -8,11 +8,11 @@ struct TimerWidgetView: View {
     var body: some View {
         VStack(spacing: 6) {
             ZStack(alignment: .bottom) {
-                YakView(isRunning: engine.isRunning, isBreak: engine.phase.isBreak, pixel: 7)
-                    .padding(.bottom, 96)
+                CharacterView(isRunning: engine.isRunning, isBreak: engine.phase.isBreak, pixel: 7)
+                    .padding(.bottom, 122)
                 TimerDisc(engine: engine)
-                    .frame(width: 120, height: 120)
-                    .shadow(color: .black.opacity(0.5), radius: 8, y: 4)
+                    .frame(width: 128, height: 128)
+                    .shadow(color: .black.opacity(0.6), radius: 10, y: 6)
             }
             Button { showStats.toggle() } label: {
                 GoalDots(done: engine.completedToday, goal: engine.dailyGoal)

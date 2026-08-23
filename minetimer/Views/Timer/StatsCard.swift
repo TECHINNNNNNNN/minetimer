@@ -27,8 +27,8 @@ struct StatsCard: View {
         }
         .padding(14)
         .frame(width: 230)
-        .background(Theme.ink)
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.charcoal, lineWidth: 2))
+        .background { ZStack { Theme.ink; Grain() } }
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.bronze, lineWidth: 2))
     }
 
     private func stat(_ big: String, _ small: String) -> some View {

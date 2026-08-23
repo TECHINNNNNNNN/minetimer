@@ -2,7 +2,7 @@
 
 A Pomodoro timer and to-do list for macOS that floats over everything you're doing.
 
-- **Yak timer** — a pixel Thai temple guardian watches you work. Click his belly to start.
+- **Kongming timer** — a pixel Zhuge Liang (孔明) in a long coat watches you work. Click the war drum to start.
 - **Typewriter** — type a task, hit enter, hear the keys. `#tag`, `!!` priority, `@tmr` due date, `+project`.
 - Daily goal, long breaks, auto-start, notifications, local music folder player.
 - Menu bar control, everything local, no accounts.

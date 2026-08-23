@@ -14,7 +14,7 @@ struct MinetimerApp: App {
         MenuBarExtra {
             MenuBarView()
         } label: {
-            Text(engine.isRunning ? engine.clock : "ยักษ์")
+            Text(engine.isRunning ? engine.clock : "孔明")
                 .font(Theme.mono(12, weight: .bold))
         }
         Settings {

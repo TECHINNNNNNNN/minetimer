@@ -1,3 +1,3 @@
-enum YakFace {
+enum SpriteFace {
     case open, blink, focus
 }

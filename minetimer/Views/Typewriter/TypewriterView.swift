@@ -91,22 +91,40 @@ struct TypewriterView: View {
 
     private var bodyShell: some View {
         VStack(spacing: 10) {
-            Rectangle().fill(Color(hex: 0x1A1615)).frame(height: 28)
-                .overlay(alignment: .top) {
-                    Capsule().fill(Color(hex: 0x3A3432)).frame(width: 300, height: 6).padding(.top, 8)
-                }
+            rod
             statusBar
             inputField
             KeyboardView(pressed: pressedKey)
-            Capsule().fill(Theme.paper).frame(width: 140, height: 18)
+            Capsule().fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze], startPoint: .top, endPoint: .bottom))
+                .frame(width: 150, height: 14)
+                .overlay(Capsule().stroke(Theme.edge, lineWidth: 1.5))
         }
         .padding(.bottom, 14)
         .frame(width: 420)
-        .background(Theme.lacquer)
-        .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color(hex: 0x120F0D), lineWidth: 2))
+        .background {
+            ZStack {
+                LinearGradient(colors: [Theme.charcoal, Theme.ink], startPoint: .top, endPoint: .bottom)
+                Grain()
+            }
+        }
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.bronze, lineWidth: 2))
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.edge, lineWidth: 1).padding(2))
         .onChange(of: draft) { old, new in keyTyped(old: old, new: new) }
         .onPasteCommand(of: [.plainText]) { paste($0) }
         .onDrop(of: [.fileURL, .plainText], isTargeted: nil) { drop($0) }
+    }
+
+    // The scroll's bottom rod: dark wood with gold caps.
+    private var rod: some View {
+        HStack(spacing: 0) {
+            Circle().fill(Theme.gold).frame(width: 14, height: 14)
+            Rectangle()
+                .fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze, Theme.edge], startPoint: .top, endPoint: .bottom))
+                .frame(height: 12)
+            Circle().fill(Theme.gold).frame(width: 14, height: 14)
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 8)
     }
 
     private var statusBar: some View {
@@ -133,10 +151,11 @@ struct TypewriterView: View {
         }
         .buttonStyle(.plain)
         .font(Theme.mono(11))
-        .foregroundStyle(Theme.paperInk)
+        .foregroundStyle(Theme.paper)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Theme.paper)
+        .background(Theme.bronze.opacity(0.35))
+        .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.bronze, lineWidth: 1))
         .padding(.horizontal, 20)
     }
 
@@ -149,6 +168,7 @@ struct TypewriterView: View {
             .onSubmit(addTask)
             .padding(10)
             .background(Theme.paper)
+            .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.edge, lineWidth: 1.5))
             .padding(.horizontal, 20)
     }
 
