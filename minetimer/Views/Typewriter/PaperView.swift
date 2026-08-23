@@ -50,6 +50,7 @@ struct PaperView: View {
                     .padding(.bottom, 10)
                 }
                 .frame(height: 236)
+                .noWindowDrag("tracklist")
                 .onChange(of: sections.flatMap { $0.items.map(\.id) }) { old, new in
                     guard new.count > old.count, let added = new.last(where: { !old.contains($0) }) else { return }
                     withAnimation { proxy.scrollTo(added, anchor: .bottom) }

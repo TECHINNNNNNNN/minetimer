@@ -26,6 +26,16 @@ final class FloatingPanel<Content: View>: NSPanel {
         if !setFrameUsingName(name) { setFrameOrigin(origin) }
     }
 
+    // A drag that starts on the tracklist belongs to the rows, not the window.
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown {
+            let p = event.locationInWindow
+            let top = CGPoint(x: p.x, y: frame.height - p.y)
+            isMovableByWindowBackground = !NoDragRegion.rects.values.contains { $0.contains(top) }
+        }
+        super.sendEvent(event)
+    }
+
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 }
