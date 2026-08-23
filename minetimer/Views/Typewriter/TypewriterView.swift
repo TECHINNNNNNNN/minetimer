@@ -173,17 +173,8 @@ struct TypewriterView: View {
     }
 
     private func add(lines: [String]) {
-        var order = (items.map(\.order).max() ?? 0) + 1
-        var parent: TodoItem? = lastAdded ?? engine.activeTask
-        for line in lines {
-            let parsed = TaskParser.parse(line)
-            guard !parsed.title.isEmpty else { continue }
-            let item = TodoItem(parsed, order: order, parentID: parsed.isChild ? parent?.id : nil)
-            context.insert(item)
-            if !parsed.isChild { parent = item }
-            order += 1
-        }
-        lastAdded = parent
+        let added = TaskAdder.add(lines: lines, context: context, parent: lastAdded ?? engine.activeTask)
+        if let top = added.last(where: { $0.parentID == nil }) { lastAdded = top }
         SoundPlayer.shared.play(.enter)
     }
 

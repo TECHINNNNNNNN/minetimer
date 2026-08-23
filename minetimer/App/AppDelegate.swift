@@ -4,6 +4,8 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var timerPanel: NSPanel?
     private var typewriterPanel: NSPanel?
+    private var quickAdd: QuickAddPanel?
+    private var hotKey: HotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Notifier.requestPermission()
@@ -18,15 +20,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                         origin: CGPoint(x: screen.midX - 210, y: screen.minY + 40)) {
             TypewriterView()
         }
+        quickAdd = QuickAddPanel()
+        registerHotKey()
         sync()
-        for key in [SettingsKey.showTimerWidget, SettingsKey.showTypewriterWidget, SettingsKey.windowMode] {
+        for key in [SettingsKey.showTimerWidget, SettingsKey.showTypewriterWidget, SettingsKey.windowMode,
+                    SettingsKey.quickAddHotKey] {
             UserDefaults.standard.addObserver(self, forKeyPath: key, context: nil)
         }
     }
 
+    func toggleQuickAdd() { quickAdd?.toggle() }
+
     override func observeValue(forKeyPath keyPath: String?, of object: Any?,
                                change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        sync()
+        keyPath == SettingsKey.quickAddHotKey ? registerHotKey() : sync()
+    }
+
+    private func registerHotKey() {
+        hotKey = nil
+        let raw = UserDefaults.standard.string(forKey: SettingsKey.quickAddHotKey) ?? ""
+        let choice = HotKeyChoice(rawValue: raw) ?? .ctrlOptN
+        guard let code = choice.keyCode else { return }
+        hotKey = HotKey(keyCode: code, modifiers: choice.modifiers) { [weak self] in self?.toggleQuickAdd() }
     }
 
     private func sync() {

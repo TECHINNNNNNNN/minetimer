@@ -18,6 +18,7 @@ enum AppDefaults {
             SettingsKey.showTimerWidget: true,
             SettingsKey.showTypewriterWidget: true,
             SettingsKey.windowMode: WindowMode.desktop.rawValue,
+            SettingsKey.quickAddHotKey: HotKeyChoice.ctrlOptN.rawValue,
         ])
     }
 }

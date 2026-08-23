@@ -15,6 +15,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.showTimerWidget) private var showTimer = true
     @AppStorage(SettingsKey.showTypewriterWidget) private var showTypewriter = true
     @AppStorage(SettingsKey.windowMode) private var windowMode = WindowMode.desktop.rawValue
+    @AppStorage(SettingsKey.quickAddHotKey) private var hotKey = HotKeyChoice.ctrlOptN.rawValue
     @State private var music = MusicPlayer.shared
 
     var body: some View {
@@ -45,6 +46,11 @@ struct SettingsView: View {
                     Button(music.isPlaying ? "Pause" : "Play") { music.toggle() }.disabled(music.tracks.isEmpty)
                     Button("Next") { music.next() }.disabled(music.tracks.isEmpty)
                     Text(music.currentTitle).foregroundStyle(.secondary).lineLimit(1)
+                }
+            }
+            Section("Quick add") {
+                Picker("Shortcut from anywhere", selection: $hotKey) {
+                    ForEach(HotKeyChoice.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
                 }
             }
             Section("Widgets") {

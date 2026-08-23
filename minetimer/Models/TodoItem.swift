@@ -60,6 +60,24 @@ final class TodoItem {
         self.completedAt = nil
     }
 
+    init(_ r: TaskRecord) {
+        id = r.id
+        title = r.title
+        notes = r.notes
+        isDone = r.isDone
+        priority = r.priority
+        dueDate = r.dueDate
+        tags = r.tags
+        project = r.project
+        pomodoros = r.pomodoros
+        estimate = r.estimate
+        repeatRaw = r.repeatRule
+        parentID = r.parentID
+        order = r.order
+        createdAt = r.createdAt
+        completedAt = r.completedAt
+    }
+
     func apply(_ parsed: ParsedTask) {
         title = parsed.title
         priority = parsed.priority
