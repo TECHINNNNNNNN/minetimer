@@ -18,8 +18,8 @@ struct TimerWidgetView: View {
                 TimerDisc(engine: engine)
                     .frame(width: 190)
                 Button { showStats.toggle() } label: {
-                    LampRow(states: LampStates.states(goal: engine.dailyGoal, lit: engine.completedToday,
-                                                      guttered: engine.abandonedToday))
+                    LampRow(fills: LampStates.fills(goal: engine.dailyGoal, lit: engine.completedToday),
+                            lit: engine.completedToday, goal: engine.dailyGoal, out: engine.abandonedToday)
                         .padding(.vertical, 6)
                         .contentShape(Rectangle())
                 }

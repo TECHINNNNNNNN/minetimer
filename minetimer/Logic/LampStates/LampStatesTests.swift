@@ -2,15 +2,19 @@ import Testing
 @testable import minetimer
 
 struct LampStatesTests {
-    @Test func litThenGutteredThenUnlit() {
-        #expect(LampStates.states(goal: 5, lit: 2, guttered: 1) == [.lit, .lit, .guttered, .unlit, .unlit])
+    @Test func goalOfSevenIsOneSessionPerLamp() {
+        #expect(LampStates.fills(goal: 7, lit: 3) == [1, 1, 1, 0, 0, 0, 0])
     }
 
-    @Test func growsPastGoal() {
-        #expect(LampStates.states(goal: 2, lit: 3, guttered: 0) == [.lit, .lit, .lit])
+    @Test func bigGoalFillsLampsGradually() {
+        #expect(LampStates.fills(goal: 28, lit: 6) == [1, 0.5, 0, 0, 0, 0, 0])
+    }
+
+    @Test func overGoalStaysFull() {
+        #expect(LampStates.fills(goal: 7, lit: 9) == [1, 1, 1, 1, 1, 1, 1])
     }
 
     @Test func nothingYet() {
-        #expect(LampStates.states(goal: 3, lit: 0, guttered: 0) == [.unlit, .unlit, .unlit])
+        #expect(LampStates.fills(goal: 28, lit: 0) == [0, 0, 0, 0, 0, 0, 0])
     }
 }

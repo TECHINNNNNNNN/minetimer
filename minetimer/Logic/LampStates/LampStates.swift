@@ -1,13 +1,14 @@
 import Foundation
 
-// Seven-star lamps: a finished session lights one, an abandoned one gutters out.
+// Seven lamps, always seven. Each stands for a seventh of the day's goal; its flame grows as that share is earned.
 enum LampStates {
-    static func states(goal: Int, lit: Int, guttered: Int) -> [LampState] {
-        let count = max(goal, lit + guttered)
+    static let count = 7
+
+    static func fills(goal: Int, lit: Int) -> [Double] {
+        let share = Double(max(goal, 1)) / Double(count)
         return (0..<count).map { i in
-            if i < lit { return .lit }
-            if i < lit + guttered { return .guttered }
-            return .unlit
+            let earned = Double(lit) - Double(i) * share
+            return min(1, max(0, earned / share))
         }
     }
 }

@@ -1,40 +1,47 @@
 import SwiftUI
 
-// The seven-star lamps. Lit when a session is finished; guttered when one was abandoned.
+// The seven-star lamps. Each flame grows with its share of the goal.
 struct LampRow: View {
-    let states: [LampState]
+    let fills: [Double]
+    let lit: Int
+    let goal: Int
+    let out: Int
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(Array(states.enumerated()), id: \.offset) { _, s in
-                Lamp(state: s)
+        VStack(spacing: 6) {
+            HStack(spacing: 9) {
+                ForEach(Array(fills.enumerated()), id: \.offset) { _, f in
+                    Lamp(fill: f)
+                }
             }
+            HStack(spacing: 6) {
+                Text("\(lit) / \(goal)")
+                    .foregroundStyle(lit >= goal ? Theme.lacquer : Theme.creamDim)
+                if out > 0 {
+                    Text("· \(out) out").foregroundStyle(Theme.bronzeLt)
+                }
+            }
+            .font(Theme.mono(8, weight: .medium))
+            .tracking(1.5)
         }
     }
 }
 
 struct Lamp: View {
-    let state: LampState
+    let fill: Double
 
     var body: some View {
         VStack(spacing: 1) {
             Ellipse()
-                .fill(flame)
-                .frame(width: 5, height: state == .unlit ? 3 : 8)
-                .shadow(color: state == .lit ? Theme.lacquer.opacity(0.8) : .clear, radius: 4)
+                .fill(Theme.lacquer)
+                .frame(width: 5, height: 2 + 8 * fill)
+                .opacity(fill > 0 ? 1 : 0)
+                .shadow(color: Theme.lacquer.opacity(0.8 * fill), radius: 4)
             RoundedRectangle(cornerRadius: 1)
-                .fill(state == .unlit ? Theme.bronzeLt : Theme.paper)
+                .fill(fill > 0 ? Theme.paper : Theme.bronzeLt)
                 .frame(width: 10, height: 4)
         }
-        .frame(height: 13, alignment: .bottom)
-        .animation(.easeOut(duration: 0.5), value: state)
-    }
-
-    private var flame: Color {
-        switch state {
-        case .lit: return Theme.lacquer
-        case .guttered: return Theme.creamDim.opacity(0.5)
-        case .unlit: return .clear
-        }
+        .frame(height: 15, alignment: .bottom)
+        .animation(.easeOut(duration: 0.5), value: fill)
     }
 }

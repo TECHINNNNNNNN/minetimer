@@ -25,7 +25,7 @@ struct SettingsView: View {
                 Stepper("Short break: \(short) min", value: $short, in: 1...60)
                 Stepper("Long break: \(long) min", value: $long, in: 1...90)
                 Stepper("Long break every \(every) sessions", value: $every, in: 1...10)
-                Stepper("Daily goal: \(goal) sessions", value: $goal, in: 1...30)
+                Stepper("Daily goal: \(goal) sessions", value: $goal, in: 1...60)
                 Toggle("Auto-start breaks", isOn: $autoBreaks)
                 Toggle("Auto-start focus after break", isOn: $autoWork)
             }
