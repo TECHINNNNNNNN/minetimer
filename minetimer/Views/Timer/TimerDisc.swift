@@ -19,7 +19,7 @@ struct TimerDisc: View {
 
     private var clock: some View {
         VStack(spacing: 4) {
-            Text(engine.isRunning ? engine.clock : "\(engine.minutesLeft):00")
+            Text(engine.clock)
                 .font(Theme.display(64))
                 .foregroundStyle(Theme.paper)
                 .contentTransition(.numericText())
