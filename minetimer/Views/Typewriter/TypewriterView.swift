@@ -4,7 +4,8 @@ import UniformTypeIdentifiers
 
 struct TypewriterView: View {
     @Environment(\.modelContext) private var context
-    @Query(sort: \TodoItem.order) private var items: [TodoItem]
+    @Query(sort: \TodoItem.order) private var allItems: [TodoItem]
+    @Query private var logs: [RoutineLog]
     @State private var engine = TimerEngine.shared
     @State private var draft = ""
     @State private var pressedKey: Character?
@@ -14,6 +15,30 @@ struct TypewriterView: View {
     @FocusState private var focused: Bool
 
     private var query: String? { SearchFilter.query(from: draft) }
+    private var items: [TodoItem] { allItems.filter { !$0.isRoutine } }
+
+    private var routine: [TodoItem] {
+        let all = allItems.filter { $0.isRoutine }
+        guard let q = query else { return all }
+        return all.filter { SearchFilter.matches(title: $0.title, tags: $0.tags, project: $0.project, query: q) }
+    }
+
+    private var routineState: RoutineState {
+        RoutineToday.state(logs: logs.map { ($0.itemID, $0.day) }, now: .now, calendar: .current)
+    }
+
+    private func toggleRoutine(_ item: TodoItem) {
+        let today = Calendar.current.startOfDay(for: .now)
+        if let log = logs.first(where: { $0.itemID == item.id && Calendar.current.isDate($0.day, inSameDayAs: today) }) {
+            context.delete(log)
+            SoundPlayer.shared.play(.space)
+        } else {
+            context.insert(RoutineLog(itemID: item.id, day: today))
+            if engine.activeTask?.id == item.id { engine.activeTask = nil }
+            SoundPlayer.shared.play(.enter)
+        }
+        try? context.save()
+    }
 
     private var visible: [TodoItem] {
         guard let q = query else { return items }
@@ -61,6 +86,7 @@ struct TypewriterView: View {
             PaperView(mode: mode, sections: sections,
                       done: mode == .today && showDone ? doneToday : [],
                       query: query, played: "\(doneToday.count) / \(doneToday.count + open.count) played",
+                      routine: routine, routineState: routineState, onRoutineToggle: toggleRoutine,
                       engine: engine, depth: depth(of:), onReorder: reorder)
                 .frame(width: 420)
             bodyShell

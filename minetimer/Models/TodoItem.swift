@@ -15,6 +15,7 @@ final class TodoItem {
     var estimate: Int = 0
     var repeatRaw: String? = nil
     var parentID: UUID? = nil
+    var isRoutine: Bool = false
     var order: Int
     var createdAt: Date
     var completedAt: Date?
@@ -37,6 +38,7 @@ final class TodoItem {
         self.estimate = parsed.estimate
         self.repeatRaw = parsed.repeatRule?.raw
         self.parentID = parentID
+        self.isRoutine = parsed.isRoutine
         self.order = order
         self.createdAt = .now
         self.completedAt = parsed.isDone ? .now : nil
@@ -73,6 +75,7 @@ final class TodoItem {
         estimate = r.estimate
         repeatRaw = r.repeatRule
         parentID = r.parentID
+        isRoutine = r.isRoutine ?? false
         order = r.order
         createdAt = r.createdAt
         completedAt = r.completedAt

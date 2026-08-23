@@ -7,6 +7,9 @@ struct PaperView: View {
     let done: [TodoItem]
     let query: String?
     let played: String
+    var routine: [TodoItem] = []
+    var routineState = RoutineState()
+    var onRoutineToggle: (TodoItem) -> Void = { _ in }
     var engine: TimerEngine
     var depth: (TodoItem) -> Int
     var onReorder: (UUID, UUID) -> Void
@@ -19,6 +22,17 @@ struct PaperView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
+                        if mode == .today, !routine.isEmpty {
+                            sectionTitle("routine")
+                            ForEach(routine) { item in
+                                TaskRow(item: item, depth: 0, engine: engine,
+                                        routineDone: routineState.doneToday.contains(item.id),
+                                        streak: routineState.streaks[item.id] ?? 0,
+                                        onRoutineToggle: { onRoutineToggle(item) })
+                                    .id(item.id)
+                            }
+                            if !isEmpty { sectionTitle("tracks") }
+                        }
                         if isEmpty { emptyText }
                         ForEach(Array(sections.enumerated()), id: \.offset) { _, section in
                             if let title = section.title { sectionTitle(title) }

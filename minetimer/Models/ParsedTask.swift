@@ -10,4 +10,5 @@ struct ParsedTask: Equatable {
     var isDone: Bool = false
     var repeatRule: RepeatRule? = nil
     var isChild: Bool = false
+    var isRoutine: Bool = false
 }

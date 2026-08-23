@@ -5,6 +5,9 @@ struct TaskRow: View {
     var number: Int = 0
     var depth: Int = 0
     var engine: TimerEngine
+    var routineDone: Bool? = nil
+    var streak: Int = 0
+    var onRoutineToggle: () -> Void = {}
     @Environment(\.modelContext) private var context
     @State private var hovering = false
     @State private var editing = false
@@ -19,10 +22,11 @@ struct TaskRow: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 0) {
                 Color.clear.frame(width: CGFloat(depth) * 18)
-                trackNumber.padding(.trailing, 12)
+                if item.isRoutine { routineRing.padding(.trailing, 12) } else { trackNumber.padding(.trailing, 12) }
                 priorityBar
                 if editing { editor } else { title }
                 Spacer(minLength: 10)
+                if item.isRoutine, streak > 0 { streakLabel.padding(.trailing, 10) }
                 if !item.isDone && !editing { trailing }
                 if hovering && !editing { deleteButton } else { Color.clear.frame(width: 14) }
             }
@@ -74,9 +78,30 @@ struct TaskRow: View {
         .buttonStyle(.plain)
     }
 
+    // Routine items: a ring that fills for today. Tomorrow it's empty again.
+    private var routineRing: some View {
+        Button { onRoutineToggle() } label: {
+            ZStack {
+                Circle().stroke(isActive ? Theme.paper : Theme.lacquer, lineWidth: 1.5)
+                if routineDone == true { Circle().fill(Theme.lacquer).padding(3) }
+            }
+            .frame(width: 14, height: 14)
+            .frame(width: 28, height: 20, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var streakLabel: some View {
+        HStack(spacing: 3) {
+            Ellipse().fill(Theme.lacquer).frame(width: 4, height: 7)
+            Text("\(streak)").font(Theme.mono(8, weight: .semibold)).foregroundStyle(isActive ? Theme.paper : Theme.lacquer)
+        }
+    }
+
     private var title: some View {
         Text(item.title)
-            .strikethrough(item.isDone)
+            .strikethrough(item.isDone || routineDone == true)
             .font(Theme.mono(12, weight: .medium))
             .foregroundStyle(titleColor)
             .lineLimit(1)
@@ -108,7 +133,7 @@ struct TaskRow: View {
 
     private var titleColor: Color {
         if isActive { return Theme.paper }
-        if item.isDone { return Theme.creamDim }
+        if item.isDone || routineDone == true { return Theme.creamDim }
         return Theme.paperInk
     }
 
@@ -118,7 +143,7 @@ struct TaskRow: View {
     private var trailing: some View {
         HStack(spacing: 10) {
             HStack(spacing: 6) {
-                if let age = TaskAge.label(created: item.createdAt, now: .now, calendar: .current) {
+                if !item.isRoutine, let age = TaskAge.label(created: item.createdAt, now: .now, calendar: .current) {
                     Text(age)
                 }
                 if item.repeatRule != nil { Text("↻") }
@@ -165,6 +190,7 @@ struct TaskRow: View {
     @ViewBuilder private var menu: some View {
         Button(isActive ? "Stop focusing" : "Focus on this") { engine.activeTask = isActive ? nil : item }
         Button("Edit") { beginEdit() }
+        Button(item.isRoutine ? "Remove from routine" : "Make routine") { item.isRoutine.toggle() }
         Button(showNotes || !item.notes.isEmpty ? "Hide notes" : "Notes") {
             showNotes.toggle()
             if !showNotes { item.notes = "" }

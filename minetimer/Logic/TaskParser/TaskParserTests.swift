@@ -40,6 +40,13 @@ struct TaskParserTests {
         #expect(TaskParser.parse("top", now: now, calendar: cal).isChild == false)
     }
 
+    @Test func routineFlag() {
+        let p = TaskParser.parse("meditate *routine ~1", now: now, calendar: cal)
+        #expect(p.title == "meditate")
+        #expect(p.isRoutine == true)
+        #expect(p.estimate == 1)
+    }
+
     @Test func numericPriority() {
         #expect(TaskParser.parse("a !2", now: now, calendar: cal).priority == 2)
         #expect(TaskParser.parse("a !9", now: now, calendar: cal).title == "a !9")

@@ -14,6 +14,7 @@ struct TaskRecord: Codable, Equatable {
     var estimate: Int
     var repeatRule: String?
     var parentID: UUID?
+    var isRoutine: Bool?
     var order: Int
     var createdAt: Date
     var completedAt: Date?
@@ -31,6 +32,7 @@ struct TaskRecord: Codable, Equatable {
         estimate = item.estimate
         repeatRule = item.repeatRaw
         parentID = item.parentID
+        isRoutine = item.isRoutine
         order = item.order
         createdAt = item.createdAt
         completedAt = item.completedAt
