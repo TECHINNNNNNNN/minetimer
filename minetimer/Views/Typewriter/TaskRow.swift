@@ -47,19 +47,23 @@ struct TaskRow: View {
     // Open = empty box. Done = a red seal stamp.
     private var checkbox: some View {
         Button { toggleDone() } label: {
-            if item.isDone {
-                Text("完")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Theme.paper)
-                    .frame(width: 14, height: 14)
-                    .background(RoundedRectangle(cornerRadius: 2).fill(Theme.lacquer))
-                    .rotationEffect(.degrees(-8))
-            } else {
-                RoundedRectangle(cornerRadius: 2)
-                    .stroke(Theme.paperInk, lineWidth: 1.5)
-                    .frame(width: 12, height: 12)
-                    .padding(1)
+            ZStack {
+                Color.clear
+                if item.isDone {
+                    Text("完")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Theme.paper)
+                        .frame(width: 14, height: 14)
+                        .background(RoundedRectangle(cornerRadius: 2).fill(Theme.lacquer))
+                        .rotationEffect(.degrees(-8))
+                } else {
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(Theme.paperInk, lineWidth: 1.5)
+                        .frame(width: 12, height: 12)
+                }
             }
+            .frame(width: 20, height: 20)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
