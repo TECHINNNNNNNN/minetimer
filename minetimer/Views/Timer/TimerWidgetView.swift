@@ -3,6 +3,7 @@ import SwiftUI
 struct TimerWidgetView: View {
     @State private var engine = TimerEngine.shared
     @State private var hovering = false
+    @State private var showStats = false
 
     var body: some View {
         VStack(spacing: 6) {
@@ -14,6 +15,12 @@ struct TimerWidgetView: View {
                     .shadow(color: .black.opacity(0.5), radius: 8, y: 4)
             }
             GoalDots(done: engine.completedToday, goal: engine.dailyGoal)
+                .padding(.vertical, 6)
+                .contentShape(Rectangle())
+                .onTapGesture { showStats.toggle() }
+                .popover(isPresented: $showStats, arrowEdge: .bottom) {
+                    StatsCard(engine: engine).modelContainer(Persistence.container)
+                }
             controls
                 .opacity(hovering ? 1 : 0)
         }
@@ -26,6 +33,7 @@ struct TimerWidgetView: View {
         HStack(spacing: 14) {
             Button { engine.restart() } label: { Image(systemName: "arrow.counterclockwise") }
             Button { engine.skip() } label: { Image(systemName: "forward.end") }
+            Button { showStats.toggle() } label: { Image(systemName: "chart.bar") }
         }
         .buttonStyle(.plain)
         .font(.system(size: 11, weight: .bold))
