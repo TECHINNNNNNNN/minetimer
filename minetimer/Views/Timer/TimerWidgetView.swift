@@ -14,10 +14,12 @@ struct TimerWidgetView: View {
                     .frame(width: 120, height: 120)
                     .shadow(color: .black.opacity(0.5), radius: 8, y: 4)
             }
-            GoalDots(done: engine.completedToday, goal: engine.dailyGoal)
-                .padding(.vertical, 6)
-                .contentShape(Rectangle())
-                .onTapGesture { showStats.toggle() }
+            Button { showStats.toggle() } label: {
+                GoalDots(done: engine.completedToday, goal: engine.dailyGoal)
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
+            }
+                .buttonStyle(.plain)
                 .popover(isPresented: $showStats, arrowEdge: .bottom) {
                     StatsCard(engine: engine).modelContainer(Persistence.container)
                 }
