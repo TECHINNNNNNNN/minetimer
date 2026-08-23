@@ -19,6 +19,7 @@ enum AppDefaults {
             SettingsKey.showTypewriterWidget: true,
             SettingsKey.windowMode: WindowMode.desktop.rawValue,
             SettingsKey.currentEra: Eras.defaultName,
+            SettingsKey.launchAtLogin: true,
             SettingsKey.quickAddHotKey: HotKeyChoice.ctrlOptN.rawValue,
             // Start the menu bar item well right of a MacBook notch; dragging it still overrides this.
             "NSStatusItem Preferred Position Item-0": 300.0,

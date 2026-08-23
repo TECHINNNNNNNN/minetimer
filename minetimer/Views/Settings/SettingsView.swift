@@ -15,6 +15,7 @@ struct SettingsView: View {
     @AppStorage(SettingsKey.showTimerWidget) private var showTimer = true
     @AppStorage(SettingsKey.showTypewriterWidget) private var showTypewriter = true
     @AppStorage(SettingsKey.windowMode) private var windowMode = WindowMode.desktop.rawValue
+    @AppStorage(SettingsKey.launchAtLogin) private var launchAtLogin = true
     @AppStorage(SettingsKey.quickAddHotKey) private var hotKey = HotKeyChoice.ctrlOptN.rawValue
     @State private var music = MusicPlayer.shared
 
@@ -59,6 +60,8 @@ struct SettingsView: View {
                 Picker("Where they live", selection: $windowMode) {
                     ForEach(WindowMode.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
                 }
+                Toggle("Launch at login", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, on in LaunchAtLogin.set(on) }
             }
         }
         .formStyle(.grouped)

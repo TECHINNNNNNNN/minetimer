@@ -17,4 +17,5 @@ enum SettingsKey {
     static let windowMode = "windowMode"
     static let quickAddHotKey = "quickAddHotKey"
     static let currentEra = "currentEra"
+    static let launchAtLogin = "launchAtLogin"
 }

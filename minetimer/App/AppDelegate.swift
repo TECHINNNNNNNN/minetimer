@@ -21,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             TypewriterView()
         }
         quickAdd = QuickAddPanel()
+        LaunchAtLogin.set(UserDefaults.standard.bool(forKey: SettingsKey.launchAtLogin))
         registerHotKey()
         sync()
         for key in [SettingsKey.showTimerWidget, SettingsKey.showTypewriterWidget, SettingsKey.windowMode,
