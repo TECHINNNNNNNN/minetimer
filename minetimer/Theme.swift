@@ -1,30 +1,31 @@
 import SwiftUI
 
-// Night desk: black surfaces, grain, off-white type, one red.
+// Cream paper, ink black, one orange-red. Nothing else.
 enum Theme {
-    static let ink       = Color(hex: 0x0C0B0B)
-    static let charcoal  = Color(hex: 0x161514)
-    static let paper     = Color(hex: 0x171615)   // card surface
-    static let paperLine = Color(hex: 0x2C2926)   // hairlines
-    static let paperInk  = Color(hex: 0xE6E1D7)   // primary type
-    static let mist      = Color(hex: 0x7C766D)   // secondary type
-    static let gold      = Color(hex: 0xC9BBA0)   // warm light, used sparingly
-    static let goldDk    = Color(hex: 0x8A8070)
-    static let lacquer   = Color(hex: 0xC0301C)   // the one red
-    static let lacquerDk = Color(hex: 0x7A1F12)
-    static let ember     = Color(hex: 0xD9472F)
-    static let jade      = Color(hex: 0x262422)   // key face
-    static let jadeDk    = Color(hex: 0x1B1A18)
-    static let bronze    = Color(hex: 0x2C2926)
-    static let bronzeLt  = Color(hex: 0x3A3633)
-    static let indigo    = Color(hex: 0x3A3835)
-    static let edge      = Color(hex: 0x050505)
+    static let ink       = Color(hex: 0x141210)
+    static let charcoal  = Color(hex: 0x1E1B18)
+    static let paper     = Color(hex: 0xEFE6D2)
+    static let paperLine = Color(hex: 0xD6CBB3)
+    static let paperInk  = Color(hex: 0x141210)
+    static let mist      = Color(hex: 0x6B6357)
+    static let gold      = Color(hex: 0xE8431F)
+    static let goldDk    = Color(hex: 0xB42E12)
+    static let lacquer   = Color(hex: 0xE8431F)
+    static let lacquerDk = Color(hex: 0xB42E12)
+    static let ember     = Color(hex: 0xE8431F)
+    static let jade      = Color(hex: 0xDCD1B8)
+    static let jadeDk    = Color(hex: 0xB9AD93)
+    static let bronze    = Color(hex: 0x2A2623)
+    static let bronzeLt  = Color(hex: 0x3A3531)
+    static let indigo    = Color(hex: 0x2A2623)
+    static let edge      = Color(hex: 0x141210)
+    static let creamDim  = Color(hex: 0x9A9183)
 
     static func priority(_ p: Int) -> Color {
         switch p {
         case 3: return lacquer
         case 2: return paperInk
-        case 1: return mist
+        case 1: return paperLine
         default: return .clear
         }
     }
@@ -33,8 +34,8 @@ enum Theme {
         .system(size: size, weight: weight, design: .monospaced)
     }
 
-    static func display(_ size: CGFloat, weight: Font.Weight = .light) -> Font {
-        .system(size: size, weight: weight, design: .default)
+    static func display(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
+        .system(size: size, weight: weight, design: .default).width(.condensed)
     }
 }
 

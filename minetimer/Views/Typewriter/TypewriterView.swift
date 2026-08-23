@@ -60,8 +60,9 @@ struct TypewriterView: View {
         VStack(spacing: 0) {
             PaperView(mode: mode, sections: sections,
                       done: mode == .today && showDone ? doneToday : [],
-                      query: query, engine: engine, depth: depth(of:), onReorder: reorder)
-                .frame(width: 360)
+                      query: query, played: "\(doneToday.count) / \(doneToday.count + open.count) played",
+                      engine: engine, depth: depth(of:), onReorder: reorder)
+                .frame(width: 420)
             bodyShell
         }
         .background { shortcuts }
@@ -91,19 +92,14 @@ struct TypewriterView: View {
 
     private var bodyShell: some View {
         VStack(spacing: 10) {
-            Rectangle().fill(Theme.paperLine).frame(height: 1)
             statusBar
             inputField
             KeyboardView(pressed: pressedKey)
                 .padding(.top, 2)
-            Rectangle().fill(Theme.jade)
-                .frame(width: 180, height: 10)
-                .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
         }
-        .padding(.bottom, 16)
+        .padding(.bottom, 18)
         .frame(width: 420)
-        .background { ZStack { Theme.paper; Grain() } }
-        .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
+        .background { ZStack { Theme.paper; Grain(opacity: 0.05) } }
         .onChange(of: draft) { old, new in keyTyped(old: old, new: new) }
         .onPasteCommand(of: [.plainText]) { paste($0) }
         .onDrop(of: [.fileURL, .plainText], isTargeted: nil) { drop($0) }
@@ -113,7 +109,8 @@ struct TypewriterView: View {
         HStack {
             Button { focused = true } label: { Text("+").bold() }
             Spacer()
-            Text("\(doneToday.count)/\(doneToday.count + open.count) done")
+            Text(mode == .today ? "SIDE A" : mode.label.uppercased())
+                .font(Theme.mono(8, weight: .medium)).tracking(2)
             Spacer()
             Menu {
                 ForEach(PaperMode.allCases, id: \.self) { m in
@@ -147,16 +144,20 @@ struct TypewriterView: View {
             .onSubmit(addTask)
             .overlay(alignment: .leading) {
                 if draft.isEmpty {
-                    Text("type a plan   #tag  !!  @tmr  +project  ~2  *daily  > sub  /find")
+                    Text("type the next track   #tag  !!  @tmr  +project  ~2  *daily  > sub  /find")
                         .font(Theme.mono(10))
-                        .foregroundStyle(Theme.mist.opacity(0.6))
+                        .foregroundStyle(Theme.mist.opacity(0.7))
                         .lineLimit(1)
                         .allowsHitTesting(false)
                 }
             }
             .padding(10)
-            .background(Theme.ink)
-            .overlay(Rectangle().stroke(focused ? Theme.mist : Theme.paperLine, lineWidth: 1))
+            .overlay(alignment: .trailing) {
+                Text("REC").font(Theme.mono(8, weight: .bold)).tracking(2)
+                    .foregroundStyle(focused ? Theme.lacquer : Theme.paperLine)
+                    .padding(.trailing, 10)
+            }
+            .overlay(Rectangle().stroke(Theme.paperInk, lineWidth: 2))
             .padding(.horizontal, 20)
     }
 

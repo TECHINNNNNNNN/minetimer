@@ -1,0 +1,31 @@
+<svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg"><defs><style>.ink{fill:#141210}.cream{fill:#EFE6D2}.org{fill:#E8431F}</style></defs>
+
+  <path class="ink" d="M10 360c4-62 34-98 84-116l56 46 56-46c50 18 80 54 84 116z"/>
+  <path class="cream" d="M96 244l54 46 54-46-5-4-49 40-49-40z"/>
+  <path class="org" d="M112 256l38 32 38-32-3-3-35 28-35-28z"/>
+  <path fill="none" stroke="#EFE6D2" stroke-width="2.2" d="M104 278c12 28 30 44 46 46 16-2 34-18 46-46"/>
+  <circle class="cream" cx="150" cy="326" r="4"/>
+
+  <path class="cream" d="M126 206h48l-4 34-20 22-20-22z"/>
+  <path class="ink" d="M126 206h48l-4 34c-12 4-26 4-40-2z" opacity=".92"/>
+
+  <path class="cream" d="M86 132c-4-48 24-82 64-82s68 34 64 82c2 40-16 80-64 82-48-2-66-42-64-82z"/>
+  <path class="ink" d="M86 132c-4-48 24-82 64-82-26 18-36 48-32 86 2 28 12 50 26 66-42-8-60-40-58-70z"/>
+
+  <path class="ink" d="M82 126c-8-48 22-92 76-96 46-4 74 30 74 74 0 10-2 18-4 22-18-10-40-16-70-16-32 0-54 6-76 16z"/>
+  <path class="ink" d="M104 44c10-14 28-22 50-22 24 0 42 8 52 22-14-8-32-12-52-12-18 0-36 4-50 12z"/>
+  <path class="cream" d="M84 118c22-10 46-16 66-16s44 6 66 16l2 8c-22-8-46-14-68-14s-46 6-68 14z"/>
+  <path class="ink" d="M214 120l16-10 4 8-16 10z"/>
+  <path class="ink" d="M218 128l18-2-2 8-16 2z"/>
+
+  <path class="ink" d="M100 136c16-8 32-8 46-2l-2 8c-14-4-28-4-42 2z"/>
+  <path class="ink" d="M200 136c-16-8-32-8-46-2l2 8c14-4 28-4 42 2z"/>
+
+  <path class="ink" d="M150 158l-7 28c4 3 10 3 14 0z" opacity=".9"/>
+
+  <path class="ink" d="M122 190c8-4 18-6 28-6s20 2 28 6c-2 3-6 4-10 3-6-2-12-3-18-3s-12 1-18 3c-4 1-8 0-10-3z"/>
+  <path class="ink" d="M116 190c-2 10-4 22-2 34 2-10 4-20 8-30z"/>
+  <path class="ink" d="M184 190c2 10 4 22 2 34-2-10-4-20-8-30z"/>
+  <path class="ink" d="M142 200c4 4 12 4 16 0l4 46c-2 14-6 28-12 42-6-14-10-28-12-42z"/>
+
+</svg>

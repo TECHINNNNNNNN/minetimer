@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TaskRow: View {
     @Bindable var item: TodoItem
+    var number: Int = 0
     var depth: Int = 0
     var engine: TimerEngine
     @Environment(\.modelContext) private var context
@@ -18,8 +19,8 @@ struct TaskRow: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 0) {
                 Color.clear.frame(width: CGFloat(depth) * 18)
+                trackNumber.padding(.trailing, 12)
                 priorityBar
-                checkbox.padding(.trailing, 8)
                 if editing { editor } else { title }
                 Spacer(minLength: 10)
                 if !item.isDone && !editing { trailing }
@@ -27,9 +28,14 @@ struct TaskRow: View {
             }
             if showNotes || !item.notes.isEmpty { notes }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 7)
+        .padding(.horizontal, isActive ? 20 : 0)
         .padding(.trailing, 2)
-        .background(isActive ? Theme.paperInk.opacity(0.06) : .clear)
+        .background(isActive ? Theme.paperInk : .clear)
+        .padding(.horizontal, isActive ? -20 : 0)
+        .overlay(alignment: .bottom) {
+            if !isActive { Rectangle().fill(Theme.paperLine).frame(height: 1) }
+        }
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(count: 2) { beginEdit() }
@@ -41,21 +47,28 @@ struct TaskRow: View {
         Rectangle()
             .fill(item.isDone ? .clear : Theme.priority(item.priority))
             .frame(width: 2, height: 12)
-            .padding(.trailing, 8)
+            .padding(.trailing, item.priority > 0 && !item.isDone ? 8 : 0)
+            .frame(width: item.priority > 0 && !item.isDone ? 10 : 0)
     }
 
-    // Open = empty box. Done = a red seal stamp.
-    private var checkbox: some View {
+    // The track number is the checkbox: click it to mark played. Done shows the seal.
+    private var trackNumber: some View {
         Button { toggleDone() } label: {
             ZStack {
-                Color.clear
                 if item.isDone {
-                    Rectangle().fill(Theme.lacquer).frame(width: 10, height: 10)
+                    Text("完")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(Theme.paper)
+                        .frame(width: 16, height: 16)
+                        .background(Theme.lacquer)
+                        .rotationEffect(.degrees(-6))
                 } else {
-                    Rectangle().stroke(Theme.mist, lineWidth: 1).frame(width: 10, height: 10)
+                    Text(String(format: "%02d", number))
+                        .font(Theme.display(18))
+                        .foregroundStyle(isActive ? Theme.lacquer : (item.priority == 3 ? Theme.lacquer : Theme.lacquer.opacity(0.85)))
                 }
             }
-            .frame(width: 18, height: 18)
+            .frame(width: 28, height: 20, alignment: .leading)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -64,7 +77,7 @@ struct TaskRow: View {
     private var title: some View {
         Text(item.title)
             .strikethrough(item.isDone)
-            .font(Theme.mono(11, weight: isActive ? .bold : .regular))
+            .font(Theme.mono(12, weight: .medium))
             .foregroundStyle(titleColor)
             .lineLimit(1)
             .truncationMode(.tail)
@@ -94,36 +107,47 @@ struct TaskRow: View {
     }
 
     private var titleColor: Color {
-        if item.isDone { return Theme.mist }
-        if item.priority == 3 { return Theme.lacquer }
+        if isActive { return Theme.paper }
+        if item.isDone { return Theme.creamDim }
         return Theme.paperInk
     }
 
+    private var metaColor: Color { isActive ? Theme.paper.opacity(0.7) : Theme.mist }
+
+    // feat. credits on the left of the length, like a tracklist.
     private var trailing: some View {
-        HStack(spacing: 8) {
-            if let age = TaskAge.label(created: item.createdAt, now: .now, calendar: .current) {
-                Text(age).foregroundStyle(Theme.mist)
+        HStack(spacing: 10) {
+            HStack(spacing: 6) {
+                if let age = TaskAge.label(created: item.createdAt, now: .now, calendar: .current) {
+                    Text(age)
+                }
+                if item.repeatRule != nil { Text("↻") }
+                if let d = item.dueDate {
+                    Text("due " + DueLabel.text(for: d))
+                        .foregroundStyle(isOverdue ? Theme.lacquer : metaColor)
+                        .fontWeight(isOverdue ? .bold : .regular)
+                }
+                if !item.tags.isEmpty || item.project != nil {
+                    Text("feat. " + (item.tags + [item.project].compactMap { $0 }).joined(separator: ", "))
+                }
             }
-            if item.repeatRule != nil {
-                Text("↻").foregroundStyle(Theme.jadeDk)
-            }
+            .font(Theme.mono(8, weight: .medium))
+            .tracking(1)
+            .textCase(.uppercase)
+            .foregroundStyle(metaColor)
             if item.pomodoros > 0 || item.estimate > 0 {
                 Text(PomodoroDots.text(done: item.pomodoros, estimate: item.estimate))
-                    .foregroundStyle(Theme.gold)
+                    .font(Theme.mono(8))
+                    .foregroundStyle(isActive ? Theme.lacquer : Theme.lacquer.opacity(0.8))
             }
-            if let d = item.dueDate {
-                Text(DueLabel.text(for: d).uppercased())
-                    .foregroundStyle(isOverdue ? Theme.ember : Theme.paperInk.opacity(0.7))
-                    .fontWeight(isOverdue ? .bold : .regular)
-            }
-            if let p = item.project {
-                Text("+" + p.uppercased()).foregroundStyle(Theme.jadeDk.opacity(0.8))
-            }
-            ForEach(item.tags, id: \.self) { t in
-                Text(t.uppercased()).foregroundStyle(Theme.paperInk.opacity(0.4))
+            if let len = TrackLength.text(estimate: item.estimate,
+                                          workMinutes: UserDefaults.standard.integer(forKey: SettingsKey.workMinutes)) {
+                Text(len)
+                    .font(Theme.mono(11))
+                    .monospacedDigit()
+                    .foregroundStyle(isActive ? Theme.paper : Theme.paperInk.opacity(0.8))
             }
         }
-        .font(Theme.mono(8, weight: .medium))
         .lineLimit(1)
         .layoutPriority(1)
     }

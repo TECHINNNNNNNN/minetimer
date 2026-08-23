@@ -9,9 +9,9 @@ struct SoundSynthTests {
         #expect(s.allSatisfy { abs($0) <= 1 })
     }
 
-    @Test func gongIsLongAndNotClipping() {
+    @Test func sessionEndNoteIsLongAndNotClipping() {
         let s = SoundSynth.samples(for: .workDone)
-        #expect(s.count == 114660)
+        #expect(s.count == 105840)
         #expect(s.allSatisfy { abs($0) <= 1 })
     }
 

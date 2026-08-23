@@ -12,7 +12,10 @@ final class TimerEngine {
     private(set) var remaining: TimeInterval = 0
     private(set) var total: TimeInterval = 0
     private(set) var completedToday = 0
+    private(set) var abandonedToday = 0
     private(set) var completedThisCycle = 0
+    private(set) var startCount = 0
+    private(set) var finishCount = 0
     var activeTask: TodoItem?
     private(set) var suggestedTask: TodoItem?
 
@@ -21,10 +24,12 @@ final class TimerEngine {
     private var ticker: Timer?
     private let defaults = UserDefaults.standard
     private let daily = DailyCount()
+    private let abandoned = DailyCount(prefix: "abandoned")
     private let context = ModelContext(Persistence.container)
 
     private init() {
         completedToday = daily.load()
+        abandonedToday = abandoned.load()
         reset(to: .work)
     }
 
@@ -58,6 +63,7 @@ final class TimerEngine {
         }
         RunLoop.main.add(t, forMode: .common)
         ticker = t
+        startCount += 1
         SoundPlayer.shared.play(.start)
     }
 
@@ -73,20 +79,29 @@ final class TimerEngine {
 
     func restart() {
         pause()
+        recordAbandonIfNeeded()
         sessionStart = nil
         reset(to: phase)
     }
 
     func skip() {
         pause()
+        recordAbandonIfNeeded()
         sessionStart = nil
         advance(completed: false)
     }
 
     func jump(to phase: Phase) {
         pause()
+        recordAbandonIfNeeded()
         sessionStart = nil
         reset(to: phase)
+    }
+
+    private func recordAbandonIfNeeded() {
+        guard AbandonRule.isAbandon(phase: phase, elapsed: total - remaining) else { return }
+        abandonedToday += 1
+        abandoned.save(abandonedToday)
     }
 
     /// The task being worked on was checked off. Offer the next one.
@@ -165,6 +180,7 @@ final class TimerEngine {
     private func recordWorkSession() {
         completedThisCycle += 1
         completedToday += 1
+        finishCount += 1
         daily.save(completedToday)
         activeTask?.pomodoros += 1
         context.insert(FocusSession(start: sessionStart ?? Date().addingTimeInterval(-total),

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg"><defs><style>.ink{fill:#141210}.cream{fill:#EFE6D2}.org{fill:#E8431F}</style></defs>
+  <path class="ink" d="M106 152c10-6 24-7 36-2-3 7-10 10-19 10-8 0-13-3-17-8z"/>
+  <path class="cream" d="M120 151c4-2 9-2 13 0-1 4-4 6-7 6s-5-2-6-6z"/>
+  <circle class="ink" cx="127" cy="153" r="2.6"/>
+  <path class="ink" d="M194 152c-10-6-24-7-36-2 3 7 10 10 19 10 8 0 13-3 17-8z"/>
+  <path class="cream" d="M180 151c-4-2-9-2-13 0 1 4 4 6 7 6s5-2 6-6z"/>
+  <circle class="ink" cx="173" cy="153" r="2.6"/>
+</svg>

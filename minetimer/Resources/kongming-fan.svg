@@ -1,0 +1,14 @@
+<svg viewBox="0 0 300 360" xmlns="http://www.w3.org/2000/svg"><defs><style>.ink{fill:#141210}.cream{fill:#EFE6D2}.org{fill:#E8431F}</style></defs>
+  <g transform="translate(236 262) rotate(12)">
+    <g transform="rotate(-62)"><path class="cream" d="M0 0c-9-24-9-64 0-84c9 20 9 64 0 84z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-74"/></g>
+    <g transform="rotate(-44)"><path class="cream" d="M0 0c-9-24-9-64 0-84c9 20 9 64 0 84z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-74"/></g>
+    <g transform="rotate(-26)"><path class="cream" d="M0 0c-9-24-9-76 0-96c9 20 9 76 0 96z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-86"/></g>
+    <g transform="rotate(-8)"><path class="cream" d="M0 0c-9-24-9-76 0-96c9 20 9 76 0 96z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-86"/></g>
+    <g transform="rotate(10)"><path class="cream" d="M0 0c-9-24-9-76 0-96c9 20 9 76 0 96z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-86"/></g>
+    <g transform="rotate(28)"><path class="cream" d="M0 0c-9-24-9-64 0-84c9 20 9 64 0 84z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-74"/></g>
+    <g transform="rotate(46)"><path class="cream" d="M0 0c-9-24-9-64 0-84c9 20 9 64 0 84z"/><path fill="none" stroke="#141210" stroke-width="1.4" d="M0-6v-74"/></g>
+    <circle class="ink" cx="0" cy="0" r="7"/>
+    <path class="ink" d="M-5 4h10l1 52c-1 4-3 6-6 6s-5-2-6-6z"/>
+    <path class="org" d="M-7 8h14l-1 10h-12z"/>
+  </g>
+</svg>

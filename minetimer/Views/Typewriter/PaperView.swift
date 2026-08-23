@@ -1,10 +1,12 @@
 import SwiftUI
 
+// The back cover: a tracklist.
 struct PaperView: View {
     let mode: PaperMode
     let sections: [PaperSection<TodoItem>]
     let done: [TodoItem]
     let query: String?
+    let played: String
     var engine: TimerEngine
     var depth: (TodoItem) -> Int
     var onReorder: (UUID, UUID) -> Void
@@ -16,34 +18,33 @@ struct PaperView: View {
             header
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 0) {
                         if isEmpty { emptyText }
                         ForEach(Array(sections.enumerated()), id: \.offset) { _, section in
                             if let title = section.title { sectionTitle(title) }
-                            ForEach(section.items) { row($0) }
+                            ForEach(Array(section.items.enumerated()), id: \.element.id) { i, item in
+                                row(item, number: i + 1)
+                            }
                         }
-                        if !done.isEmpty {
-                            Divider().padding(.vertical, 4)
-                            ForEach(done) { row($0) }
+                        ForEach(Array(done.enumerated()), id: \.element.id) { i, item in
+                            row(item, number: i + 1)
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 10)
                 }
-                .frame(height: 230)
+                .frame(height: 236)
                 .onChange(of: sections.flatMap { $0.items.map(\.id) }) { old, new in
                     guard new.count > old.count, let added = new.last(where: { !old.contains($0) }) else { return }
                     withAnimation { proxy.scrollTo(added, anchor: .bottom) }
                 }
             }
         }
-        .background { ZStack { Theme.paper; Grain() } }
-        .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
-        .padding(.bottom, -1)
+        .background { ZStack { Theme.paper; Grain(opacity: 0.05) } }
     }
 
-    private func row(_ item: TodoItem) -> some View {
-        TaskRow(item: item, depth: depth(item), engine: engine)
+    private func row(_ item: TodoItem, number: Int) -> some View {
+        TaskRow(item: item, number: number, depth: depth(item), engine: engine)
             .id(item.id)
             .draggable(item.id.uuidString)
             .dropDestination(for: String.self) { dropped, _ in
@@ -54,43 +55,52 @@ struct PaperView: View {
     }
 
     private var emptyText: some View {
-        Text(query != nil ? "nothing matches." : mode == .today ? "nothing yet. type below." : "nothing here.")
+        Text(query != nil ? "nothing matches." : mode == .today ? "no tracks yet. type one below." : "nothing here.")
             .font(Theme.mono(11))
-            .foregroundStyle(Theme.paperInk.opacity(0.4))
-            .padding(.vertical, 8)
+            .foregroundStyle(Theme.mist)
+            .padding(.vertical, 12)
     }
 
     private func sectionTitle(_ title: String) -> some View {
         Text(title.uppercased())
             .font(Theme.mono(8, weight: .semibold))
-            .tracking(1.5)
-            .foregroundStyle(Theme.mist)
-            .padding(.top, 10)
-            .padding(.bottom, 2)
+            .tracking(2)
+            .foregroundStyle(Theme.lacquer)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(headerTitle)
-                    .font(Theme.mono(9, weight: .semibold))
-                    .tracking(2)
-                    .foregroundStyle(Theme.paperInk)
-                Spacer()
+        HStack(alignment: .bottom) {
+            Text(headerTitle)
+                .font(Theme.display(34))
+                .foregroundStyle(Theme.paperInk)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+            VStack(alignment: .trailing, spacing: 3) {
                 if let query, !query.isEmpty {
                     Text("/\(query)").font(Theme.mono(9)).foregroundStyle(Theme.lacquer)
                 }
+                Text(played.uppercased())
+                    .font(Theme.mono(8, weight: .medium))
+                    .tracking(2)
+                    .foregroundStyle(Theme.mist)
             }
-            Rectangle().fill(Theme.paperLine).frame(height: 1)
+            .padding(.bottom, 5)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 16)
-        .padding(.bottom, 6)
+        .padding(.horizontal, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 10)
+        .overlay(alignment: .bottom) { Rectangle().fill(Theme.paperInk).frame(height: 2).padding(.horizontal, 20) }
+        .padding(.bottom, 4)
     }
 
     private var headerTitle: String {
-        mode == .today
-            ? Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased()
-            : mode.label.uppercased()
+        if mode == .today {
+            let d = Date.now
+            return d.formatted(.dateTime.weekday(.wide)) + "\n" + d.formatted(.dateTime.day().month(.abbreviated))
+        }
+        return mode.label
     }
 }

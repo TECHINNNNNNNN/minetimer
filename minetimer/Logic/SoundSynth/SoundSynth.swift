@@ -13,7 +13,8 @@ enum SoundSynth {
         case .start:      return bell(freqs: [523, 784], len: 0.35, gain: 0.25)
         case .pause:      return bell(freqs: [392, 311], len: 0.3, gain: 0.2)
         case .tick:       return click(pitch: 2400, len: 0.02, noise: 0.3, gain: 0.12, seed: 3)
-        case .workDone:   return gong()
+        case .workDone:   return mix(pluck(freq: 196, len: 2.4, gain: 0.5, seed: 11),
+                                     pluck(freq: 294, len: 2.0, gain: 0.3, seed: 12, delay: 0.35))
         case .breakDone:  return mix(bell(freqs: [659, 880], len: 0.5, gain: 0.3),
                                      bell(freqs: [1318], len: 0.9, gain: 0.2, delay: 0.18))
         }
@@ -65,6 +66,27 @@ enum SoundSynth {
             }
             let attack: Double = min(1, t * 40)
             out[i] = Float(v * 0.22 * attack)
+        }
+        return out
+    }
+
+    // Karplus-Strong plucked string: a guqin note.
+    static func pluck(freq: Double, len: Double, gain: Double, seed: UInt64, delay: Double = 0) -> [Float] {
+        let n = Int(sampleRate * (len + delay))
+        let d = Int(sampleRate * delay)
+        let period = Int(sampleRate / freq)
+        var ring = [Double](repeating: 0, count: period)
+        var rng = SeededRandom(seed: seed)
+        for i in 0..<period { ring[i] = rng.nextUnit() }
+        var out = [Float](repeating: 0, count: n)
+        var idx = 0
+        for i in d..<n {
+            let next = (idx + 1) % period
+            let v = ring[idx]
+            ring[idx] = (v + ring[next]) * 0.5 * 0.996
+            let t = Double(i - d) / sampleRate
+            out[i] = Float(v * gain * exp(-t * 1.2))
+            idx = next
         }
         return out
     }

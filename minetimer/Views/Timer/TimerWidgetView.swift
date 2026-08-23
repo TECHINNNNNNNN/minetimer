@@ -1,51 +1,49 @@
 import SwiftUI
 
-// A poster card: portrait on top, readout below.
+// Kongming floats on the desktop; the incense and readout sit at his shoulder.
 struct TimerWidgetView: View {
     @State private var engine = TimerEngine.shared
     @State private var hovering = false
     @State private var showStats = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            CharacterView(isRunning: engine.isRunning, isBreak: engine.phase.isBreak, pixel: 5)
-                .padding(.top, 22)
-                .padding(.bottom, 14)
-            TimerDisc(engine: engine)
-                .padding(.horizontal, 18)
-            HStack {
+        HStack(alignment: .bottom, spacing: 8) {
+            KongmingView(isRunning: engine.isRunning, isBreak: engine.phase.isBreak, startCount: engine.startCount)
+            VStack(spacing: 6) {
+                ZStack(alignment: .top) {
+                    IncenseView(progress: engine.progress, isRunning: engine.isRunning && !engine.phase.isBreak, width: 130)
+                    MottoView(text: "寧靜致遠", trigger: engine.startCount).padding(.top, 6)
+                    MottoView(text: "鞠躬盡瘁", trigger: engine.finishCount).padding(.top, 6)
+                }
+                TimerDisc(engine: engine)
+                    .frame(width: 190)
                 Button { showStats.toggle() } label: {
-                    GoalDots(done: engine.completedToday, goal: engine.dailyGoal)
-                        .padding(.vertical, 8)
+                    LampRow(states: LampStates.states(goal: engine.dailyGoal, lit: engine.completedToday,
+                                                      guttered: engine.abandonedToday))
+                        .padding(.vertical, 6)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .popover(isPresented: $showStats, arrowEdge: .bottom) {
                     StatsCard(engine: engine).modelContainer(Persistence.container)
                 }
-                Spacer()
                 controls.opacity(hovering ? 1 : 0)
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 8)
-            .padding(.bottom, 12)
+            .padding(.bottom, 10)
         }
-        .frame(width: 210)
-        .background { ZStack { Theme.paper; Grain() } }
-        .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
-        .padding(10)
+        .padding(16)
         .onHover { hovering = $0 }
         .contextMenu { TimerMenu(engine: engine) }
     }
 
     private var controls: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Button { engine.restart() } label: { Image(systemName: "arrow.counterclockwise") }
             Button { engine.skip() } label: { Image(systemName: "forward.end") }
             Button { showStats.toggle() } label: { Image(systemName: "chart.bar") }
         }
         .buttonStyle(.plain)
         .font(.system(size: 10, weight: .medium))
-        .foregroundStyle(Theme.mist)
+        .foregroundStyle(Theme.creamDim)
     }
 }
