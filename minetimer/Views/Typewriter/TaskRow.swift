@@ -29,7 +29,7 @@ struct TaskRow: View {
         }
         .padding(.vertical, 4)
         .padding(.trailing, 2)
-        .background(isActive ? Theme.gold.opacity(0.18) : .clear)
+        .background(isActive ? Theme.paperInk.opacity(0.06) : .clear)
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .onTapGesture(count: 2) { beginEdit() }
@@ -40,7 +40,7 @@ struct TaskRow: View {
     private var priorityBar: some View {
         Rectangle()
             .fill(item.isDone ? .clear : Theme.priority(item.priority))
-            .frame(width: 3, height: 14)
+            .frame(width: 2, height: 12)
             .padding(.trailing, 8)
     }
 
@@ -50,19 +50,12 @@ struct TaskRow: View {
             ZStack {
                 Color.clear
                 if item.isDone {
-                    Text("完")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(Theme.paper)
-                        .frame(width: 14, height: 14)
-                        .background(RoundedRectangle(cornerRadius: 2).fill(Theme.lacquer))
-                        .rotationEffect(.degrees(-8))
+                    Rectangle().fill(Theme.lacquer).frame(width: 10, height: 10)
                 } else {
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(Theme.paperInk, lineWidth: 1.5)
-                        .frame(width: 12, height: 12)
+                    Rectangle().stroke(Theme.mist, lineWidth: 1).frame(width: 10, height: 10)
                 }
             }
-            .frame(width: 20, height: 20)
+            .frame(width: 18, height: 18)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

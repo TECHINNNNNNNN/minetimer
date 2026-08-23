@@ -2,21 +2,22 @@ import SwiftUI
 
 // Zhuge Liang (孔明): scholar's cap, calm eyes, goatee, crane-feather fan. Long dark coat, one gold chain.
 enum KongmingSprite {
+    // Monochrome, like a grainy print. Four grays, one red for focus.
     static let palette: [Character: Color] = [
-        "K": Theme.edge,
-        "H": Theme.indigo,
-        "h": Color(hex: 0x1C273D),
-        "S": Color(hex: 0xE6C59C),
-        "s": Color(hex: 0xC9A67C),
-        "W": Color(hex: 0xF2EEE4),
+        "K": Color(hex: 0x0A0A0A),
+        "H": Color(hex: 0x3A3835),
+        "h": Color(hex: 0x2A2826),
+        "S": Color(hex: 0xB9B2A6),
+        "s": Color(hex: 0x8F887D),
+        "W": Color(hex: 0xB9B2A6),
         "B": Color(hex: 0x0A0A0A),
-        "E": Theme.ember,
-        "C": Color(hex: 0x1A1718),
-        "c": Color(hex: 0x2A2527),
-        "G": Theme.gold,
-        "F": Color(hex: 0xECE4D2),
-        "f": Color(hex: 0xC6BBA4),
-        "R": Theme.lacquerDk,
+        "E": Theme.lacquer,
+        "C": Color(hex: 0x1C1B19),
+        "c": Color(hex: 0x262523),
+        "G": Color(hex: 0xE6E1D7),
+        "F": Color(hex: 0xDAD4C8),
+        "f": Color(hex: 0xA39C90),
+        "R": Color(hex: 0x4A4540),
     ]
 
     static func frame(_ face: SpriteFace) -> [String] {
@@ -47,7 +48,7 @@ enum KongmingSprite {
         "....KSSSSSSSSSSSSK....",
         "...KSSSSSSSSSSSSSSK...",
         "...KSSKKSSSSSSKKSSK...",
-        "...KSSWBWSSSSWBWSSK...",
+        "...KSSKBKSSSSKBKSSK...",
         "...KSSSSSSSSSSSSSSK...",
         "...KSSSSSSssSSSSSSK...",
         "...KSSSSSSSSSSSSSSK...",
@@ -77,7 +78,7 @@ enum KongmingSprite {
         "....KSSSSSSSSSSSSK....",
         "...KSSSSSSSSSSSSSSK...",
         "...KSKKKSSSSSSKKKSK...",
-        "...KSSEBESSSSEBESSK...",
+        "...KSSKEKSSSSKEKSSK...",
         "...KSSSSSSSSSSSSSSK...",
         "...KSSSSSSssSSSSSSK...",
         "...KSSSSSSSSSSSSSSK...",

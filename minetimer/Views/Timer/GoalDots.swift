@@ -5,16 +5,16 @@ struct GoalDots: View {
     let goal: Int
 
     var body: some View {
-        HStack(spacing: 3) {
+        HStack(spacing: 4) {
             ForEach(0..<max(goal, 1), id: \.self) { i in
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(i < done ? Theme.gold : Theme.charcoal)
-                    .frame(width: 6, height: 6)
+                Rectangle()
+                    .fill(i < done ? Theme.paperInk : Theme.paperLine)
+                    .frame(width: 8, height: 3)
             }
             if done > goal {
                 Text("+\(done - goal)")
                     .font(Theme.mono(8, weight: .bold))
-                    .foregroundStyle(Theme.gold)
+                    .foregroundStyle(Theme.paperInk)
             }
         }
     }

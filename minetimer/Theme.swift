@@ -1,36 +1,40 @@
 import SwiftUI
 
-// War room palette: blackened bronze, cinnabar, aged gold, bone, a little jade.
+// Night desk: black surfaces, grain, off-white type, one red.
 enum Theme {
-    static let ink       = Color(hex: 0x0F0D0C)
-    static let charcoal  = Color(hex: 0x1E1A17)
-    static let bronze    = Color(hex: 0x4A3726)
-    static let bronzeLt  = Color(hex: 0x7A5C3A)
-    static let lacquer   = Color(hex: 0xA8321F)
-    static let lacquerDk = Color(hex: 0x6E1E14)
-    static let gold      = Color(hex: 0xC9973A)
-    static let goldDk    = Color(hex: 0x8C6424)
-    static let paper     = Color(hex: 0xE9E1CF)
-    static let paperLine = Color(hex: 0xCDC2A8)
-    static let paperInk  = Color(hex: 0x241C16)
-    static let jade      = Color(hex: 0x5E8F6E)
-    static let jadeDk    = Color(hex: 0x2F4F3A)
-    static let mist      = Color(hex: 0x9A9184)
-    static let ember     = Color(hex: 0xE0633A)
-    static let indigo    = Color(hex: 0x2B3A5C)
-    static let edge      = Color(hex: 0x0A0908)
+    static let ink       = Color(hex: 0x0C0B0B)
+    static let charcoal  = Color(hex: 0x161514)
+    static let paper     = Color(hex: 0x171615)   // card surface
+    static let paperLine = Color(hex: 0x2C2926)   // hairlines
+    static let paperInk  = Color(hex: 0xE6E1D7)   // primary type
+    static let mist      = Color(hex: 0x7C766D)   // secondary type
+    static let gold      = Color(hex: 0xC9BBA0)   // warm light, used sparingly
+    static let goldDk    = Color(hex: 0x8A8070)
+    static let lacquer   = Color(hex: 0xC0301C)   // the one red
+    static let lacquerDk = Color(hex: 0x7A1F12)
+    static let ember     = Color(hex: 0xD9472F)
+    static let jade      = Color(hex: 0x262422)   // key face
+    static let jadeDk    = Color(hex: 0x1B1A18)
+    static let bronze    = Color(hex: 0x2C2926)
+    static let bronzeLt  = Color(hex: 0x3A3633)
+    static let indigo    = Color(hex: 0x3A3835)
+    static let edge      = Color(hex: 0x050505)
 
     static func priority(_ p: Int) -> Color {
         switch p {
         case 3: return lacquer
-        case 2: return gold
-        case 1: return paperLine
+        case 2: return paperInk
+        case 1: return mist
         default: return .clear
         }
     }
 
     static func mono(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight, design: .monospaced)
+    }
+
+    static func display(_ size: CGFloat, weight: Font.Weight = .light) -> Font {
+        .system(size: size, weight: weight, design: .default)
     }
 }
 

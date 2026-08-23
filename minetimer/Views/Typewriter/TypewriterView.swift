@@ -91,40 +91,22 @@ struct TypewriterView: View {
 
     private var bodyShell: some View {
         VStack(spacing: 10) {
-            rod
+            Rectangle().fill(Theme.paperLine).frame(height: 1)
             statusBar
             inputField
             KeyboardView(pressed: pressedKey)
-            Capsule().fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze], startPoint: .top, endPoint: .bottom))
-                .frame(width: 150, height: 14)
-                .overlay(Capsule().stroke(Theme.edge, lineWidth: 1.5))
+                .padding(.top, 2)
+            Rectangle().fill(Theme.jade)
+                .frame(width: 180, height: 10)
+                .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
         }
-        .padding(.bottom, 14)
+        .padding(.bottom, 16)
         .frame(width: 420)
-        .background {
-            ZStack {
-                LinearGradient(colors: [Theme.charcoal, Theme.ink], startPoint: .top, endPoint: .bottom)
-                Grain()
-            }
-        }
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.bronze, lineWidth: 2))
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.edge, lineWidth: 1).padding(2))
+        .background { ZStack { Theme.paper; Grain() } }
+        .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
         .onChange(of: draft) { old, new in keyTyped(old: old, new: new) }
         .onPasteCommand(of: [.plainText]) { paste($0) }
         .onDrop(of: [.fileURL, .plainText], isTargeted: nil) { drop($0) }
-    }
-
-    // The scroll's bottom rod: dark wood with gold caps.
-    private var rod: some View {
-        HStack(spacing: 0) {
-            Circle().fill(Theme.gold).frame(width: 14, height: 14)
-            Rectangle()
-                .fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze, Theme.edge], startPoint: .top, endPoint: .bottom))
-                .frame(height: 12)
-            Circle().fill(Theme.gold).frame(width: 14, height: 14)
-        }
-        .padding(.horizontal, 14)
-        .padding(.top, 8)
     }
 
     private var statusBar: some View {
@@ -150,25 +132,31 @@ struct TypewriterView: View {
             }
         }
         .buttonStyle(.plain)
-        .font(Theme.mono(11))
-        .foregroundStyle(Theme.paper)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Theme.bronze.opacity(0.35))
-        .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.bronze, lineWidth: 1))
+        .font(Theme.mono(10))
+        .foregroundStyle(Theme.mist)
         .padding(.horizontal, 20)
+        .padding(.top, 2)
     }
 
     private var inputField: some View {
-        TextField("type your plan...  #tag !! @tmr +project ~2 *daily  > subtask  /search", text: $draft)
+        TextField("", text: $draft)
             .textFieldStyle(.plain)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.paperInk)
             .focused($focused)
             .onSubmit(addTask)
+            .overlay(alignment: .leading) {
+                if draft.isEmpty {
+                    Text("type a plan   #tag  !!  @tmr  +project  ~2  *daily  > sub  /find")
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.mist.opacity(0.6))
+                        .lineLimit(1)
+                        .allowsHitTesting(false)
+                }
+            }
             .padding(10)
-            .background(Theme.paper)
-            .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.edge, lineWidth: 1.5))
+            .background(Theme.ink)
+            .overlay(Rectangle().stroke(focused ? Theme.mist : Theme.paperLine, lineWidth: 1))
             .padding(.horizontal, 20)
     }
 

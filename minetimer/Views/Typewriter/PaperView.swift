@@ -37,28 +37,9 @@ struct PaperView: View {
                 }
             }
         }
-        .background {
-            ZStack {
-                Theme.paper
-                Grain(opacity: 0.05)
-            }
-        }
-        .overlay(Rectangle().stroke(Theme.edge, lineWidth: 2))
-        .overlay(alignment: .top) { topRod }
-        .padding(.top, 8)
-    }
-
-    // The scroll's top rod.
-    private var topRod: some View {
-        HStack(spacing: 0) {
-            Circle().fill(Theme.gold).frame(width: 14, height: 14)
-            Rectangle()
-                .fill(LinearGradient(colors: [Theme.bronzeLt, Theme.bronze, Theme.edge], startPoint: .top, endPoint: .bottom))
-                .frame(height: 12)
-            Circle().fill(Theme.gold).frame(width: 14, height: 14)
-        }
-        .padding(.horizontal, -8)
-        .offset(y: -7)
+        .background { ZStack { Theme.paper; Grain() } }
+        .overlay(Rectangle().stroke(Theme.paperLine, lineWidth: 1))
+        .padding(.bottom, -1)
     }
 
     private func row(_ item: TodoItem) -> some View {
@@ -81,31 +62,30 @@ struct PaperView: View {
 
     private func sectionTitle(_ title: String) -> some View {
         Text(title.uppercased())
-            .font(Theme.mono(9, weight: .bold))
-            .foregroundStyle(Theme.lacquer.opacity(0.8))
-            .padding(.top, 8)
+            .font(Theme.mono(8, weight: .semibold))
+            .tracking(1.5)
+            .foregroundStyle(Theme.mist)
+            .padding(.top, 10)
             .padding(.bottom, 2)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("··· \(headerTitle)")
-                    .font(Theme.mono(11, weight: .bold))
-                    .foregroundStyle(Theme.lacquer)
+                Text(headerTitle)
+                    .font(Theme.mono(9, weight: .semibold))
+                    .tracking(2)
+                    .foregroundStyle(Theme.paperInk)
                 Spacer()
                 if let query, !query.isEmpty {
-                    Text("/\(query)").font(Theme.mono(9)).foregroundStyle(Theme.jadeDk)
+                    Text("/\(query)").font(Theme.mono(9)).foregroundStyle(Theme.lacquer)
                 }
             }
-            Text(String(repeating: "·", count: 70))
-                .font(Theme.mono(8))
-                .foregroundStyle(Theme.lacquer.opacity(0.5))
-                .lineLimit(1)
+            Rectangle().fill(Theme.paperLine).frame(height: 1)
         }
         .padding(.horizontal, 16)
-        .padding(.top, 18)
-        .padding(.bottom, 8)
+        .padding(.top, 16)
+        .padding(.bottom, 6)
     }
 
     private var headerTitle: String {

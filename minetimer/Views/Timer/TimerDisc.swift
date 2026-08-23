@@ -1,89 +1,81 @@
 import SwiftUI
 
-// A bronze war drum. The ring burns down like incense.
+// The readout under the portrait: thin numerals, a hairline that burns down.
 struct TimerDisc: View {
     var engine: TimerEngine
 
     var body: some View {
-        ZStack {
-            Circle().fill(
-                RadialGradient(colors: [Theme.bronzeLt, Theme.bronze, Theme.edge],
-                               center: .center, startRadius: 30, endRadius: 64))
-            studs
-            Circle().fill(Theme.ink).padding(11)
-            Circle().stroke(Theme.charcoal, lineWidth: 4).padding(13)
-            Circle()
-                .trim(from: 0, to: engine.progress)
-                .stroke(AngularGradient(colors: [Theme.gold, Theme.ember, Theme.gold], center: .center),
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .padding(13)
-                .shadow(color: Theme.ember.opacity(0.8), radius: 4)
-                .animation(.linear(duration: 0.25), value: engine.progress)
-
+        VStack(spacing: 6) {
             if let next = engine.suggestedTask {
                 suggestion(next)
             } else {
                 clock
             }
+            progress
         }
-        .overlay(Circle().stroke(Theme.edge, lineWidth: 2))
-        .contentShape(Circle())
+        .contentShape(Rectangle())
         .onTapGesture { if engine.suggestedTask == nil { engine.toggle() } }
     }
 
-    private var studs: some View {
-        ForEach(0..<12, id: \.self) { i in
-            Circle()
-                .fill(Theme.gold.opacity(0.85))
-                .frame(width: 4, height: 4)
-                .offset(y: -54)
-                .rotationEffect(.degrees(Double(i) * 30))
-        }
-    }
-
     private var clock: some View {
-        VStack(spacing: 1) {
-            Text(engine.isRunning ? engine.clock : "\(engine.minutesLeft)")
-                .font(Theme.mono(engine.isRunning ? 20 : 28, weight: .bold))
-                .foregroundStyle(Theme.paper)
+        VStack(spacing: 2) {
+            Text(engine.isRunning ? engine.clock : "\(engine.minutesLeft):00")
+                .font(Theme.display(40, weight: .thin))
+                .tracking(-1)
+                .foregroundStyle(Theme.paperInk)
                 .contentTransition(.numericText())
-            Text(engine.isRunning ? engine.phase.label : "MIN")
-                .font(Theme.mono(7, weight: .semibold))
-                .foregroundStyle(Theme.gold)
-            Text(engine.activeTask?.title ?? "(no task)")
-                .font(Theme.mono(7))
+            HStack(spacing: 6) {
+                Text(engine.phase.label.uppercased())
+                    .foregroundStyle(engine.isRunning ? Theme.lacquer : Theme.mist)
+                Text("·").foregroundStyle(Theme.paperLine)
+                Text(engine.isRunning ? "PAUSE" : "START")
+                    .foregroundStyle(Theme.mist)
+            }
+            .font(Theme.mono(8, weight: .semibold))
+            .tracking(1.5)
+            Text(engine.activeTask?.title ?? " ")
+                .font(Theme.mono(8))
                 .foregroundStyle(Theme.mist)
                 .lineLimit(1)
-                .padding(.horizontal, 22)
-            Text(engine.isRunning ? "⏸ PAUSE" : "▶ START")
-                .font(Theme.mono(7, weight: .bold))
-                .foregroundStyle(Theme.paper.opacity(0.8))
                 .padding(.top, 2)
         }
     }
 
+    private var progress: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Rectangle().fill(Theme.paperLine)
+                Rectangle()
+                    .fill(engine.phase.isBreak ? Theme.mist : Theme.lacquer)
+                    .frame(width: geo.size.width * engine.progress)
+                    .animation(.linear(duration: 0.25), value: engine.progress)
+            }
+        }
+        .frame(height: 2)
+        .padding(.top, 6)
+    }
+
     private func suggestion(_ next: TodoItem) -> some View {
-        VStack(spacing: 4) {
-            Text("NEXT?")
-                .font(Theme.mono(7, weight: .semibold))
-                .foregroundStyle(Theme.gold)
+        VStack(spacing: 6) {
+            Text("NEXT")
+                .font(Theme.mono(8, weight: .semibold))
+                .tracking(1.5)
+                .foregroundStyle(Theme.lacquer)
             Text(next.title)
-                .font(Theme.mono(9, weight: .bold))
-                .foregroundStyle(Theme.paper)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.paperInk)
                 .lineLimit(2)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 22)
-            HStack(spacing: 12) {
+            HStack(spacing: 16) {
                 Button { engine.acceptSuggestion() } label: {
-                    Text("▶ GO").font(Theme.mono(8, weight: .bold)).foregroundStyle(Theme.gold)
+                    Text("GO").font(Theme.mono(9, weight: .bold)).tracking(1).foregroundStyle(Theme.paperInk)
                 }
                 Button { engine.dismissSuggestion() } label: {
-                    Text("✕").font(Theme.mono(8, weight: .bold)).foregroundStyle(Theme.mist)
+                    Text("SKIP").font(Theme.mono(9, weight: .bold)).tracking(1).foregroundStyle(Theme.mist)
                 }
             }
             .buttonStyle(.plain)
-            .padding(.top, 2)
         }
+        .frame(height: 74)
     }
 }
