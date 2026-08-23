@@ -70,7 +70,7 @@ struct TypewriterView: View {
     private var shortcuts: some View {
         Group {
             Button("") { focused = true }.keyboardShortcut("n", modifiers: .command)
-            Button("") { if let t = engine.activeTask { t.isDone.toggle(); t.completedAt = t.isDone ? .now : nil; engine.activeTask = nil } }
+            Button("") { if let t = engine.activeTask { t.isDone = true; t.completedAt = .now; engine.taskFinished(t) } }
                 .keyboardShortcut(.return, modifiers: .command)
             Button("") { if let t = engine.activeTask { engine.activeTask = nil; context.delete(t) } }
                 .keyboardShortcut(.delete, modifiers: .command)

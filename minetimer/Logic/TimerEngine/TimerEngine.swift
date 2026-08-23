@@ -14,6 +14,7 @@ final class TimerEngine {
     private(set) var completedToday = 0
     private(set) var completedThisCycle = 0
     var activeTask: TodoItem?
+    private(set) var suggestedTask: TodoItem?
 
     private var endDate: Date?
     private var sessionStart: Date?
@@ -47,6 +48,8 @@ final class TimerEngine {
 
     func start() {
         guard !isRunning else { return }
+        if phase == .work, activeTask == nil { activeTask = topTask(excluding: nil) }
+        suggestedTask = nil
         if sessionStart == nil { sessionStart = .now }
         endDate = Date().addingTimeInterval(remaining)
         isRunning = true
@@ -85,6 +88,31 @@ final class TimerEngine {
         pause()
         sessionStart = nil
         reset(to: phase)
+    }
+
+    /// The task being worked on was checked off. Offer the next one.
+    func taskFinished(_ task: TodoItem) {
+        guard activeTask?.id == task.id else { return }
+        activeTask = nil
+        suggestedTask = topTask(excluding: task.id)
+    }
+
+    func acceptSuggestion() {
+        guard let s = suggestedTask else { return }
+        activeTask = s
+        suggestedTask = nil
+        if !isRunning { start() }
+    }
+
+    func dismissSuggestion() { suggestedTask = nil }
+
+    private func topTask(excluding: UUID?) -> TodoItem? {
+        let all = (try? context.fetch(FetchDescriptor<TodoItem>(sortBy: [SortDescriptor(\.order)]))) ?? []
+        let ordered = TaskSort.sorted(all, priority: \.priority, order: \.order)
+        return NextTask.pick(ordered,
+                             isOpen: { !$0.isDone && TodayFilter.isToday(dueDate: $0.dueDate, now: .now, calendar: .current) },
+                             isTopLevel: { $0.parentID == nil },
+                             excluding: { $0.id == excluding })
     }
 
     func refreshDurations() {

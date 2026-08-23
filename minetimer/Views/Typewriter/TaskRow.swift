@@ -186,7 +186,7 @@ struct TaskRow: View {
     private func toggleDone() {
         item.isDone.toggle()
         item.completedAt = item.isDone ? .now : nil
-        if item.isDone, isActive { engine.activeTask = nil }
+        if item.isDone { engine.taskFinished(item) }
         if item.isDone, let rule = item.repeatRule {
             let next = NextOccurrence.date(after: max(item.dueDate ?? .now, .now), rule: rule, calendar: .current)
             context.insert(TodoItem(nextOf: item, dueDate: next))
