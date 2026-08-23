@@ -144,14 +144,16 @@ struct TypewriterView: View {
             .onSubmit(addTask)
             .overlay(alignment: .leading) {
                 if draft.isEmpty {
-                    Text("type the next track   #tag  !!  @tmr  +project  ~2  *daily  > sub  /find")
+                    Text("type the next track   #tag  !!  @tmr  ~2")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.mist.opacity(0.7))
                         .lineLimit(1)
                         .allowsHitTesting(false)
                 }
             }
-            .padding(10)
+            .padding(.vertical, 10)
+            .padding(.leading, 10)
+            .padding(.trailing, 44)
             .overlay(alignment: .trailing) {
                 Text("REC").font(Theme.mono(8, weight: .bold)).tracking(2)
                     .foregroundStyle(focused ? Theme.lacquer : Theme.paperLine)
