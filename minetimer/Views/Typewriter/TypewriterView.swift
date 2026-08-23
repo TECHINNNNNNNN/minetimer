@@ -138,7 +138,22 @@ struct TypewriterView: View {
 
     private var statusBar: some View {
         HStack {
-            Button { focused = true } label: { Text("+").bold() }
+            Menu {
+                Section("Templates") {
+                    ForEach(Templates.all) { t in
+                        Button("\(t.title)    \(t.text)") { insert(t.text) }
+                    }
+                }
+                Menu("Syntax") {
+                    ForEach(Templates.syntax, id: \.0) { s in Button("\(s.0)   ·   \(s.1)") { insert(s.0) }.disabled(false) }
+                }
+                Menu("Shortcuts") {
+                    ForEach(Templates.shortcuts, id: \.0) { s in Text("\(s.0)   ·   \(s.1)") }
+                }
+            } label: { Text("+").bold() }
+            .menuStyle(.button)
+            .menuIndicator(.hidden)
+            .fixedSize()
             Spacer()
             Text(mode == .today ? "SIDE A" : mode.label.uppercased())
                 .font(Theme.mono(8, weight: .medium)).tracking(2)
@@ -197,6 +212,19 @@ struct TypewriterView: View {
             }
             .overlay(Rectangle().stroke(Theme.paperInk, lineWidth: 2))
             .padding(.horizontal, 20)
+    }
+
+    // Drop a template into the field and park the cursor after it, so the next thing typed is the name.
+    private func insert(_ text: String) {
+        draft = draft.isEmpty ? text : draft + " " + text
+        NSApp.windows.first { $0.frame.contains(NSEvent.mouseLocation) }?.makeKey()
+        focused = true
+        Task {
+            try? await Task.sleep(for: .milliseconds(60))
+            if let editor = NSApp.keyWindow?.firstResponder as? NSTextView {
+                editor.setSelectedRange(NSRange(location: editor.string.count, length: 0))
+            }
+        }
     }
 
     private func keyTyped(old: String, new: String) {
