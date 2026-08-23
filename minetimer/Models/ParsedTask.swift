@@ -8,4 +8,5 @@ struct ParsedTask: Equatable {
     var project: String? = nil
     var estimate: Int = 0
     var isDone: Bool = false
+    var repeatRule: RepeatRule? = nil
 }

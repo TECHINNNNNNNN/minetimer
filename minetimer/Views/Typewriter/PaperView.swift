@@ -27,7 +27,7 @@ struct PaperView: View {
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
                 }
-                .frame(maxHeight: 260)
+                .frame(height: 230)
                 .onChange(of: open.map(\.id)) { old, new in
                     guard new.count > old.count, let added = new.last(where: { !old.contains($0) }) else { return }
                     withAnimation { proxy.scrollTo(added, anchor: .bottom) }

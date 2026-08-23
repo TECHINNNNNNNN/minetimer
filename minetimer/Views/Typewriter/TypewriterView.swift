@@ -14,7 +14,9 @@ struct TypewriterView: View {
     private var open: [TodoItem] {
         TaskSort.sorted(items.filter { !$0.isDone }, priority: \.priority, order: \.order)
     }
-    private var done: [TodoItem] { items.filter { $0.isDone } }
+    private var done: [TodoItem] {
+        items.filter { $0.isDone && DoneVisibility.isOnPaper(completedAt: $0.completedAt, now: .now, calendar: .current) }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -48,7 +50,7 @@ struct TypewriterView: View {
         HStack {
             Button { focused = true } label: { Text("+").bold() }
             Spacer()
-            Text("\(done.count)/\(items.count) done")
+            Text("\(done.count)/\(done.count + open.count) done")
             Spacer()
             Button { showDone.toggle() } label: { Text("≡") }
             Button { MusicPlayer.shared.toggle() } label: {
@@ -65,7 +67,7 @@ struct TypewriterView: View {
     }
 
     private var inputField: some View {
-        TextField("type your plan...  #tag !! @tmr +project ~2", text: $draft)
+        TextField("type your plan...  #tag !! @tmr +project ~2 *daily", text: $draft)
             .textFieldStyle(.plain)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.paperInk)

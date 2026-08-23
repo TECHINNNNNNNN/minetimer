@@ -26,6 +26,12 @@ struct TaskParserTests {
         #expect(p.isDone == true)
     }
 
+    @Test func repeatRule() {
+        let p = TaskParser.parse("standup *weekdays", now: now, calendar: cal)
+        #expect(p.title == "standup")
+        #expect(p.repeatRule == .weekdays)
+    }
+
     @Test func numericPriority() {
         #expect(TaskParser.parse("a !2", now: now, calendar: cal).priority == 2)
         #expect(TaskParser.parse("a !9", now: now, calendar: cal).title == "a !9")

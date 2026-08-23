@@ -1,6 +1,6 @@
 import Foundation
 
-// "fix login bug #backend !3 @tomorrow +minetimer ~2"
+// "fix login bug #backend !3 @tomorrow +minetimer ~2 *weekdays"
 enum TaskParser {
     static func parse(_ input: String, now: Date = .now, calendar: Calendar = .current) -> ParsedTask {
         let (body, isDone) = ChecklistLine.strip(input)
@@ -14,6 +14,8 @@ enum TaskParser {
                 result.project = String(word.dropFirst())
             } else if word.hasPrefix("~"), let n = Int(word.dropFirst()), n > 0 {
                 result.estimate = n
+            } else if word.hasPrefix("*"), let r = RepeatParser.rule(from: String(word.dropFirst())) {
+                result.repeatRule = r
             } else if let p = priority(from: word) {
                 result.priority = p
             } else if word.hasPrefix("@"), let d = DueDateParser.date(from: String(word.dropFirst()), now: now, calendar: calendar) {

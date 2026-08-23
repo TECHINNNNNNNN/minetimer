@@ -60,6 +60,12 @@ struct TaskRow: View {
 
     private var trailing: some View {
         HStack(spacing: 8) {
+            if let age = TaskAge.label(created: item.createdAt, now: .now, calendar: .current) {
+                Text(age).foregroundStyle(Theme.mist)
+            }
+            if item.repeatRule != nil {
+                Text("↻").foregroundStyle(Theme.jadeDk)
+            }
             if item.pomodoros > 0 || item.estimate > 0 {
                 Text(PomodoroDots.text(done: item.pomodoros, estimate: item.estimate))
                     .foregroundStyle(Theme.gold)
@@ -104,6 +110,10 @@ struct TaskRow: View {
         item.isDone.toggle()
         item.completedAt = item.isDone ? .now : nil
         if item.isDone, isActive { engine.activeTask = nil }
+        if item.isDone, let rule = item.repeatRule {
+            let next = NextOccurrence.date(after: max(item.dueDate ?? .now, .now), rule: rule, calendar: .current)
+            context.insert(TodoItem(nextOf: item, dueDate: next))
+        }
         SoundPlayer.shared.play(item.isDone ? .enter : .space)
     }
 
