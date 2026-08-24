@@ -33,6 +33,23 @@ final class TimerEngine {
         completedToday = daily.load()
         abandonedToday = abandoned.load()
         reset(to: .work)
+        watchMidnight()
+    }
+
+    // A new day: the lamps go dark again. Streaks and history are untouched.
+    private func watchMidnight() {
+        let cal = Calendar.current
+        let nextMidnight = cal.startOfDay(for: cal.date(byAdding: .day, value: 1, to: .now)!)
+        let t = Timer(fire: nextMidnight.addingTimeInterval(1), interval: 0, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                self.completedToday = self.daily.load()
+                self.abandonedToday = self.abandoned.load()
+                self.completedThisCycle = 0
+                self.watchMidnight()
+            }
+        }
+        RunLoop.main.add(t, forMode: .common)
     }
 
     var dailyGoal: Int { defaults.integer(forKey: SettingsKey.dailyGoal) }

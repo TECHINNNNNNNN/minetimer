@@ -17,6 +17,7 @@ struct MinetimerApp: App {
             Text(engine.isRunning ? engine.clock : "孔明")
                 .font(Theme.mono(12, weight: .bold))
         }
+        .menuBarExtraStyle(.window)
         Settings {
             SettingsView()
         }
