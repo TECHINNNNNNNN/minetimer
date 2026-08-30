@@ -50,12 +50,19 @@ struct MenuBarView: View {
                 .font(Theme.mono(9, weight: .semibold)).tracking(2)
                 .foregroundStyle(engine.isRunning ? Theme.lacquer : Theme.mist)
             Spacer()
-            Text("\(engine.completedToday) / \(engine.dailyGoal)")
-                .font(Theme.display(18))
-                .foregroundStyle(Theme.paperInk)
-            Text("TODAY")
-                .font(Theme.mono(8, weight: .medium)).tracking(1.5)
-                .foregroundStyle(Theme.mist)
+            VStack(alignment: .trailing, spacing: 1) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(engine.completedToday) / \(engine.dailyGoal)")
+                        .font(Theme.display(18))
+                        .foregroundStyle(Theme.paperInk)
+                    Text("TODAY")
+                        .font(Theme.mono(8, weight: .medium)).tracking(1.5)
+                        .foregroundStyle(Theme.mist)
+                }
+                Text("\(FocusTotal.text(seconds: engine.focusedLive)) / \(FocusTotal.text(seconds: engine.goalSeconds))")
+                    .font(Theme.mono(9, weight: .medium)).tracking(1)
+                    .foregroundStyle(Theme.lacquer)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.top, 14)

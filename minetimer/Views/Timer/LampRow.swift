@@ -6,6 +6,7 @@ struct LampRow: View {
     let lit: Int
     let goal: Int
     let out: Int
+    var hours: String = ""
 
     var body: some View {
         VStack(spacing: 6) {
@@ -14,11 +15,16 @@ struct LampRow: View {
                     Lamp(fill: f)
                 }
             }
-            HStack(spacing: 6) {
-                Text("\(lit) / \(goal)")
-                    .foregroundStyle(lit >= goal ? Theme.lacquer : Theme.creamDim)
-                if out > 0 {
-                    Text("· \(out) out").foregroundStyle(Theme.bronzeLt)
+            VStack(spacing: 3) {
+                HStack(spacing: 6) {
+                    Text("\(lit) / \(goal)")
+                        .foregroundStyle(lit >= goal ? Theme.lacquer : Theme.creamDim)
+                    if out > 0 {
+                        Text("· \(out) out").foregroundStyle(Theme.bronzeLt)
+                    }
+                }
+                if !hours.isEmpty {
+                    Text(hours).foregroundStyle(Theme.paper)
                 }
             }
             .font(Theme.mono(8, weight: .medium))

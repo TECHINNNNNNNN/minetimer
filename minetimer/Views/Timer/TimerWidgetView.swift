@@ -19,7 +19,8 @@ struct TimerWidgetView: View {
                     .frame(width: 190)
                 Button { showStats.toggle() } label: {
                     LampRow(fills: LampStates.fills(goal: engine.dailyGoal, lit: engine.completedToday),
-                            lit: engine.completedToday, goal: engine.dailyGoal, out: engine.abandonedToday)
+                            lit: engine.completedToday, goal: engine.dailyGoal, out: engine.abandonedToday,
+                            hours: "\(FocusTotal.text(seconds: engine.focusedLive)) / \(FocusTotal.text(seconds: engine.goalSeconds))")
                         .padding(.vertical, 6)
                         .contentShape(Rectangle())
                 }

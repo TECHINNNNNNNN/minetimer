@@ -13,6 +13,7 @@ final class TimerEngine {
     private(set) var total: TimeInterval = 0
     private(set) var completedToday = 0
     private(set) var abandonedToday = 0
+    private(set) var focusedToday: TimeInterval = 0
     private(set) var completedThisCycle = 0
     private(set) var startCount = 0
     private(set) var finishCount = 0
@@ -32,6 +33,7 @@ final class TimerEngine {
     private init() {
         completedToday = daily.load()
         abandonedToday = abandoned.load()
+        focusedToday = loadFocusedToday()
         reset(to: .work)
         watchMidnight()
     }
@@ -45,6 +47,7 @@ final class TimerEngine {
                 guard let self else { return }
                 self.completedToday = self.daily.load()
                 self.abandonedToday = self.abandoned.load()
+                self.focusedToday = self.loadFocusedToday()
                 self.completedThisCycle = 0
                 self.watchMidnight()
             }
@@ -56,6 +59,19 @@ final class TimerEngine {
     var goalProgress: Double { min(1, Double(completedToday) / Double(max(1, dailyGoal))) }
     var progress: Double { total > 0 ? 1 - remaining / total : 0 }
     var clock: String { ClockFormat.mmss(remaining) }
+
+    /// Hours focused today, counting the session that's burning right now.
+    var focusedLive: TimeInterval {
+        focusedToday + (isRunning && phase == .work ? total - remaining : 0)
+    }
+
+    var goalSeconds: TimeInterval { TimeInterval(dailyGoal) * duration(for: .work) }
+
+    private func loadFocusedToday() -> TimeInterval {
+        let start = Calendar.current.startOfDay(for: .now)
+        let sessions = (try? context.fetch(FetchDescriptor<FocusSession>(predicate: #Predicate { $0.start >= start }))) ?? []
+        return sessions.reduce(0) { $0 + $1.duration }
+    }
     var elapsedClock: String { ClockFormat.mmss(total - remaining) }
     var minutesLeft: Int { ClockFormat.minutesLeft(remaining) }
 
@@ -222,5 +238,6 @@ final class TimerEngine {
                                     taskTitle: activeTask?.title,
                                     taskID: activeTask?.id))
         try? context.save()
+        focusedToday += total
     }
 }
