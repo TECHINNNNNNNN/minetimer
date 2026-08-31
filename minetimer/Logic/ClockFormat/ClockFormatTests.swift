@@ -11,11 +11,4 @@ struct ClockFormatTests {
     @Test func roundsUpPartialSeconds() {
         #expect(ClockFormat.mmss(59.2) == "01:00")
     }
-
-    @Test func minutesLeftRoundsUp() {
-        #expect(ClockFormat.minutesLeft(1500) == 25)
-        #expect(ClockFormat.minutesLeft(1441) == 25)
-        #expect(ClockFormat.minutesLeft(1) == 1)
-        #expect(ClockFormat.minutesLeft(-5) == 0)
-    }
 }

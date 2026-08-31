@@ -71,7 +71,6 @@ final class TimerEngine {
     }
 
     var dailyGoal: Int { defaults.integer(forKey: SettingsKey.dailyGoal) }
-    var goalProgress: Double { min(1, Double(completedToday) / Double(max(1, dailyGoal))) }
     var progress: Double { total > 0 ? 1 - remaining / total : 0 }
     var clock: String { ClockFormat.mmss(remaining) }
 
@@ -83,7 +82,6 @@ final class TimerEngine {
     var goalSeconds: TimeInterval { TimeInterval(dailyGoal) * duration(for: .work) }
 
     var elapsedClock: String { ClockFormat.mmss(total - remaining) }
-    var minutesLeft: Int { ClockFormat.minutesLeft(remaining) }
 
     func duration(for phase: Phase) -> TimeInterval {
         let key: String
