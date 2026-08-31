@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftData
 import Observation
@@ -26,31 +27,45 @@ final class TimerEngine {
     private var sessionStart: Date?
     private var ticker: Timer?
     private let defaults = UserDefaults.standard
-    private let daily = DailyCount()
     private let abandoned = DailyCount(prefix: "abandoned")
     private let context = ModelContext(Persistence.container)
+    private var countsDay: Date = .distantPast
 
     private init() {
-        completedToday = daily.load()
-        abandonedToday = abandoned.load()
-        focusedToday = loadFocusedToday()
+        reloadCounts()
         reset(to: .work)
-        watchMidnight()
+        watchDayChange()
     }
 
-    // A new day: the lamps go dark again. Streaks and history are untouched.
-    private func watchMidnight() {
-        let cal = Calendar.current
-        let nextMidnight = cal.startOfDay(for: cal.date(byAdding: .day, value: 1, to: .now)!)
-        let t = Timer(fire: nextMidnight.addingTimeInterval(1), interval: 0, repeats: false) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                self.completedToday = self.daily.load()
-                self.abandonedToday = self.abandoned.load()
-                self.focusedToday = self.loadFocusedToday()
-                self.completedThisCycle = 0
-                self.watchMidnight()
-            }
+    // Today's numbers are recomputed from the session records; a cached counter can never go stale.
+    private func reloadCounts() {
+        let sessions = (try? context.fetch(FetchDescriptor<FocusSession>())) ?? []
+        let today = SessionCounts.today(sessions: sessions.map { ($0.start, $0.duration) },
+                                        now: .now, calendar: .current)
+        completedToday = today.count
+        focusedToday = today.seconds
+        abandonedToday = abandoned.load()
+        countsDay = Calendar.current.startOfDay(for: .now)
+    }
+
+    private func rolloverIfNeeded() {
+        guard SessionCounts.isStale(loadedDay: countsDay, now: .now, calendar: .current) else { return }
+        reloadCounts()
+        completedThisCycle = 0
+    }
+
+    // The day can change while we sleep, nap, or idle; listen to everything and double-check every minute.
+    private func watchDayChange() {
+        let nc = NotificationCenter.default
+        nc.addObserver(forName: .NSCalendarDayChanged, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.rolloverIfNeeded() }
+        }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
+                                                          object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.rolloverIfNeeded() }
+        }
+        let t = Timer(timeInterval: 60, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.rolloverIfNeeded() }
         }
         RunLoop.main.add(t, forMode: .common)
     }
@@ -67,11 +82,6 @@ final class TimerEngine {
 
     var goalSeconds: TimeInterval { TimeInterval(dailyGoal) * duration(for: .work) }
 
-    private func loadFocusedToday() -> TimeInterval {
-        let start = Calendar.current.startOfDay(for: .now)
-        let sessions = (try? context.fetch(FetchDescriptor<FocusSession>(predicate: #Predicate { $0.start >= start }))) ?? []
-        return sessions.reduce(0) { $0 + $1.duration }
-    }
     var elapsedClock: String { ClockFormat.mmss(total - remaining) }
     var minutesLeft: Int { ClockFormat.minutesLeft(remaining) }
 
@@ -89,6 +99,7 @@ final class TimerEngine {
 
     func start() {
         guard !isRunning else { return }
+        rolloverIfNeeded()
         suggestedTask = nil
         if sessionStart == nil { sessionStart = .now }
         endDate = Date().addingTimeInterval(remaining)
@@ -201,6 +212,7 @@ final class TimerEngine {
             advance(completed: true)
             return
         }
+        rolloverIfNeeded()
         if defaults.bool(forKey: SettingsKey.tickSound), Int(remaining) != Int(r) {
             SoundPlayer.shared.play(.tick)
         }
@@ -227,10 +239,10 @@ final class TimerEngine {
     }
 
     private func recordWorkSession() {
+        rolloverIfNeeded()
         completedThisCycle += 1
         completedToday += 1
         finishCount += 1
-        daily.save(completedToday)
         activeTask?.pomodoros += 1
         if let t = activeTask, t.estimate > 0, t.pomodoros >= t.estimate { askDone = t }
         context.insert(FocusSession(start: sessionStart ?? Date().addingTimeInterval(-total),
