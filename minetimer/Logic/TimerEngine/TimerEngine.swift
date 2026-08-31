@@ -39,7 +39,9 @@ final class TimerEngine {
 
     // Today's numbers are recomputed from the session records; a cached counter can never go stale.
     private func reloadCounts() {
-        let sessions = (try? context.fetch(FetchDescriptor<FocusSession>())) ?? []
+        let dayStart = Calendar.current.startOfDay(for: .now)
+        let descriptor = FetchDescriptor<FocusSession>(predicate: #Predicate { $0.start >= dayStart })
+        let sessions = (try? context.fetch(descriptor)) ?? []
         let today = SessionCounts.today(sessions: sessions.map { ($0.start, $0.duration) },
                                         now: .now, calendar: .current)
         completedToday = today.count
