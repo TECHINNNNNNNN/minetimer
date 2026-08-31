@@ -59,8 +59,10 @@ final class TimerEngine {
     // The day can change while we sleep, nap, or idle; listen to everything and double-check every minute.
     private func watchDayChange() {
         let nc = NotificationCenter.default
-        nc.addObserver(forName: .NSCalendarDayChanged, object: nil, queue: .main) { [weak self] _ in
-            Task { @MainActor in self?.rolloverIfNeeded() }
+        for name: Notification.Name in [.NSCalendarDayChanged, .NSSystemClockDidChange, .NSSystemTimeZoneDidChange] {
+            nc.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.rolloverIfNeeded() }
+            }
         }
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
                                                           object: nil, queue: .main) { [weak self] _ in
